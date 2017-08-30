@@ -29,17 +29,50 @@ class ACF_Content_Blocks {
 	 * ACF Content Blocks constructor
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'register_block_presets_cpt' ), 0 );
+		add_action( 'init', array( $this, 'register_custom_post_type' ), 0 );
 
 		add_action( 'acf/init', array( $this, 'initialize' ) );
-
-		add_action( 'acf/input/admin_footer', array( $this, 'update_acf_admin_footer' ) );
 
 		add_filter( 'acf/validate_field_group', array( $this, 'add_field_group_block_option' ) );
 		add_action( 'acf/render_field_group_settings', array( $this, 'render_field_group_block_option' ) );
 		add_action( 'acf/update_field_group', array( $this, 'update_field_group_block_option' ) );
 
 		add_filter( 'acf/prepare_field/key=field_acb_content_blocks', array( $this, 'prepare_content_blocks_field' ) );
+		add_filter( 'acf/prepare_field/name=acb_use_preset', array( $this, 'hide_preset_fields' ) );
+		add_filter( 'acf/prepare_field/name=acb_preset', array( $this, 'hide_preset_fields' ) );
+		add_filter( 'acf/prepare_field/name=acb_content_block', array( $this, 'remove_content_block_conditional_logic' ) );
+	}
+
+	/**
+	 * Hide preset fields in preset custom post type
+	 *
+	 * @param array $field ACF field.
+	 * @return array|false
+	 */
+	public function hide_preset_fields( $field ) {
+		$screen = get_current_screen();
+
+		if ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type ) {
+			return false;
+		}
+
+		return $field;
+	}
+
+	/**
+	 * Remove section field conditional logic in preset custom post type
+	 *
+	 * @param array $field ACF field.
+	 * @return array
+	 */
+	public function remove_content_block_conditional_logic( $field ) {
+		$screen = get_current_screen();
+
+		if ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type ) {
+			$field['conditional_logic'] = 0;
+		}
+
+		return $field;
 	}
 
 	/**
@@ -48,7 +81,7 @@ class ACF_Content_Blocks {
 	 * @param array $field ACF field.
 	 * @return array
 	 */
-	function prepare_content_blocks_field( $field ) {
+	public function prepare_content_blocks_field( $field ) {
 		$screen = get_current_screen();
 
 		if ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type ) {
@@ -141,7 +174,7 @@ class ACF_Content_Blocks {
 
 		$block_layout = $block['acf_fc_layout'];
 
-		if ( ! empty( $block['use_preset'] ) ) {
+		if ( ! empty( $block['acb_use_preset'] ) ) {
 
 			return self::get_block_preset_data( $block );
 
@@ -151,7 +184,7 @@ class ACF_Content_Blocks {
 	}
 
 	public static function get_block_preset_data( $block ) {
-		$preset = $block['preset'];
+		$preset = $block['acb_preset'];
 
 		$block_layout = $block['acf_fc_layout'];
 
@@ -175,26 +208,12 @@ class ACF_Content_Blocks {
 		$this->field_groups = $this->get_acf_content_blocks();
 
 		$this->register_content_blocks_component_field_group();
-
-		$this->load_custom_acf_fields();
-	}
-
-	public function update_acf_admin_footer() {
-	?>
-		<script type="text/javascript">
-			(function($) {
-				acf.fields.sjcb_block_preset = acf.fields.select.extend({
-					type: 'sjcb_block_preset'
-				});
-			})(jQuery);
-		</script>
-	<?php
 	}
 
 	/**
 	 * Register Block Preset custom post type
 	 */
-	public function register_block_presets_cpt() {
+	public function register_custom_post_type() {
 		$labels = array(
 			'name'                  => _x( 'Block Presets', 'Post Type General Name', 'acf-content-blocks' ),
 			'singular_name'         => _x( 'Block Preset', 'Post Type Singular Name', 'acf-content-blocks' ),
@@ -297,6 +316,11 @@ class ACF_Content_Blocks {
 		) );
 	}
 
+	/**
+	 * Content blocks flexible content layouts
+	 *
+	 * @return array
+	 */
 	private function get_content_blocks_component_layouts_array() {
 		$layouts = array();
 
@@ -313,7 +337,7 @@ class ACF_Content_Blocks {
 					array(
 						'key' => 'field_sjcb_' . $field_group_hash . '_use_preset',
 						'label' => 'Use Preset',
-						'name' => 'use_preset',
+						'name' => 'acb_use_preset',
 						'type' => 'true_false',
 						'instructions' => '',
 						'required' => 0,
@@ -332,7 +356,7 @@ class ACF_Content_Blocks {
 					array(
 						'key' => 'field_sjcb_' . $field_group_hash . '_preset',
 						'label' => 'Preset',
-						'name' => 'preset',
+						'name' => 'acb_preset',
 						'type' => 'post_object',
 						'instructions' => '',
 						'required' => 1,
@@ -437,10 +461,6 @@ class ACF_Content_Blocks {
 		}
 
 		return $content_blocks;
-	}
-
-	private function load_custom_acf_fields() {
-		include( plugin_dir_path( __FILE__ ) . 'fields/sjcb-block-preset.php' );
 	}
 }
 
