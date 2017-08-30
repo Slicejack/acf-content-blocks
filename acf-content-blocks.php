@@ -41,6 +41,29 @@ class ACF_Content_Blocks {
 		add_filter( 'acf/prepare_field/name=acb_use_preset', array( $this, 'hide_preset_fields' ) );
 		add_filter( 'acf/prepare_field/name=acb_preset', array( $this, 'hide_preset_fields' ) );
 		add_filter( 'acf/prepare_field/name=acb_content_block', array( $this, 'remove_content_block_conditional_logic' ) );
+
+		add_filter( 'acf/fields/post_object/query/name=acb_preset', array( $this, 'filter_preset_field_presets' ), 10, 2 );
+	}
+
+	/**
+	 * Filter preset field presets
+	 *
+	 * @param array $args  Query arguments.
+	 * @param array $field ACF field.
+	 * @return array
+	 */
+	public function filter_preset_field_presets( $args, $field ) {
+		$parent_field = get_field_object( $field['parent'] );
+		$layout = $parent_field['layouts'][ $field['parent_layout'] ];
+
+		$args['meta_query'] = array(
+			array(
+				'key' => 'content_blocks',
+				'value' => serialize( array( $layout['name'] ) ),
+			),
+		);
+
+		return $args;
 	}
 
 	/**
@@ -85,6 +108,7 @@ class ACF_Content_Blocks {
 		$screen = get_current_screen();
 
 		if ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type ) {
+			$field['required'] = 1;
 			$field['min'] = '1';
 			$field['max'] = '1';
 		}
@@ -329,7 +353,7 @@ class ACF_Content_Blocks {
 			$field_group_hash = str_replace( 'group_', '', $field_group->id );
 
 			$layouts[ $field_group_hash ] = array(
-				'key' => 'option_sjcb_' . $field_group_hash,
+				'key' => $field_group_hash,
 				'name' => $field_group->name,
 				'label' => $field_group->title,
 				'display' => 'block',
