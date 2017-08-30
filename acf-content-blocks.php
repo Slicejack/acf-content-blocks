@@ -38,6 +38,25 @@ class ACF_Content_Blocks {
 		add_filter( 'acf/validate_field_group', array( $this, 'add_field_group_block_option' ) );
 		add_action( 'acf/render_field_group_settings', array( $this, 'render_field_group_block_option' ) );
 		add_action( 'acf/update_field_group', array( $this, 'update_field_group_block_option' ) );
+
+		add_filter( 'acf/prepare_field/key=field_acb_content_blocks', array( $this, 'prepare_content_blocks_field' ) );
+	}
+
+	/**
+	 * Allow only one layout in preset
+	 *
+	 * @param array $field ACF field.
+	 * @return array
+	 */
+	function prepare_content_blocks_field( $field ) {
+		$screen = get_current_screen();
+
+		if ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type ) {
+			$field['min'] = '1';
+			$field['max'] = '1';
+		}
+
+		return $field;
 	}
 
 	/**
@@ -155,8 +174,6 @@ class ACF_Content_Blocks {
 	public function initialize() {
 		$this->field_groups = $this->get_acf_content_blocks();
 
-		$this->register_block_presets_component_field_group();
-
 		$this->register_content_blocks_component_field_group();
 
 		$this->load_custom_acf_fields();
@@ -233,111 +250,16 @@ class ACF_Content_Blocks {
 		register_post_type( 'acb_block_preset', $args );
 	}
 
-	private function register_block_presets_component_field_group() {
-		acf_add_local_field_group( array(
-			'key' => 'group_sjcb_block_preset_settings',
-			'title' => 'Block Preset Settings',
-			'fields' => $this->get_block_presets_component_fields_array(),
-			'location' => array(
-				array(
-					array(
-						'param' => 'post_type',
-						'operator' => '==',
-						'value' => 'acb_block_preset',
-					),
-				),
-			),
-			'menu_order' => 0,
-			'position' => 'normal',
-			'style' => 'default',
-			'label_placement' => 'top',
-			'instruction_placement' => 'label',
-			'hide_on_screen' => '',
-			'active' => 1,
-			'description' => '',
-		) );
-	}
-
-	private function get_block_presets_component_fields_array() {
-		$fields = array();
-
-		$fields[] = array(
-			'key' => 'field_sjcb_block_preset_type',
-			'label' => 'Block Preset Type',
-			'name' => 'sjcb_block_preset_type',
-			'type' => 'select',
-			'instructions' => '',
-			'required' => 1,
-			'conditional_logic' => 0,
-			'wrapper' => array(
-				'width' => '',
-				'class' => '',
-				'id' => '',
-			),
-			'choices' => $this->get_block_presets_component_choices_array(),
-			'default_value' => array(),
-			'allow_null' => 1,
-			'multiple' => 0,
-			'ui' => 0,
-			'ajax' => 0,
-			'return_format' => 'value',
-			'placeholder' => '',
-		);
-
-		foreach ( $this->field_groups as $field_group ) {
-			$fields[] = array(
-				'key' => 'field_sjcb_opt_' . $field_group->hash,
-				'label' => $field_group->title . ' Block Preset Settings',
-				'name' => 'sjcb_' . $field_group->name . '_block_preset_settings',
-				'type' => 'clone',
-				'instructions' => '',
-				'required' => 0,
-				'conditional_logic' => array(
-					array(
-						array(
-							'field' => 'field_sjcb_block_preset_type',
-							'operator' => '==',
-							'value' => $field_group->name,
-						),
-					),
-				),
-				'wrapper' => array(
-					'width' => '',
-					'class' => '',
-					'id' => '',
-				),
-				'clone' => array(
-					0 => $field_group->id,
-				),
-				'display' => 'group',
-				'layout' => 'block',
-				'prefix_label' => 0,
-				'prefix_name' => 1,
-			);
-		}
-
-		return $fields;
-	}
-
-	private function get_block_presets_component_choices_array() {
-		$choices = array();
-
-		foreach ( $this->field_groups as $field_group ) {
-
-			$choices[ $field_group->name ] = $field_group->title;
-
-		}
-
-		return $choices;
-	}
-
+	/**
+	 * Register content blocks component field group
+	 */
 	private function register_content_blocks_component_field_group() {
 		acf_add_local_field_group( array(
 			'key' => 'group_sjcb_content_blocks',
 			'title' => '[COMPONENT] Content Blocks',
 			'fields' => array(
 				array(
-					'key' => 'field_sjcb_content_blocks',
+					'key' => 'field_acb_content_blocks',
 					'label' => 'Content Blocks',
 					'name' => 'content_blocks',
 					'type' => 'flexible_content',
@@ -360,7 +282,7 @@ class ACF_Content_Blocks {
 					array(
 						'param' => 'post_type',
 						'operator' => '==',
-						'value' => 'post',
+						'value' => 'acb_block_preset',
 					),
 				),
 			),
@@ -370,7 +292,7 @@ class ACF_Content_Blocks {
 			'label_placement' => 'top',
 			'instruction_placement' => 'label',
 			'hide_on_screen' => '',
-			'active' => 0,
+			'active' => 1,
 			'description' => '',
 		) );
 	}
@@ -438,7 +360,7 @@ class ACF_Content_Blocks {
 					array(
 						'key' => 'field_sjcb_' . $field_group_hash . '_display_settings',
 						'label' => $field_group->title . ' Block Display Settings',
-						'name' => $field_group->name,
+						'name' => 'acb_content_block',
 						'type' => 'clone',
 						'instructions' => '',
 						'required' => 0,
