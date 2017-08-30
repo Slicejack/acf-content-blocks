@@ -34,6 +34,52 @@ class ACF_Content_Blocks {
 		add_action( 'acf/init', array( $this, 'initialize' ) );
 
 		add_action( 'acf/input/admin_footer', array( $this, 'update_acf_admin_footer' ) );
+
+		add_filter( 'acf/validate_field_group', array( $this, 'add_field_group_block_option' ) );
+		add_action( 'acf/render_field_group_settings', array( $this, 'render_field_group_block_option' ) );
+		add_action( 'acf/update_field_group', array( $this, 'update_field_group_block_option' ) );
+	}
+
+	/**
+	 * Adds block option to field group array
+	 *
+	 * @param array $field_group ACF field group.
+	 * @return array
+	 */
+	public static function add_field_group_block_option( $field_group ) {
+		if ( empty( $field_group['content_block'] ) ) {
+			$field_group['content_block'] = 0;
+		} else {
+			$field_group['content_block'] = 1;
+		}
+
+		return $field_group;
+	}
+
+	/**
+	 * Renders block option in Options metabox
+	 */
+	public static function render_field_group_block_option() {
+		global $field_group;
+
+		acf_render_field_wrap( array(
+			'label'        => __( 'Content Block', 'acf' ),
+			'instructions' => '',
+			'type'         => 'true_false',
+			'name'         => 'content_block',
+			'prefix'       => 'acf_field_group',
+			'value'        => $field_group['content_block'],
+			'ui'           => 1,
+		) );
+	}
+
+	/**
+	 * Update field group's content_block post meta.
+	 *
+	 * @param array $field_group ACF field group.
+	 */
+	public static function update_field_group_block_option( $field_group ) {
+		update_post_meta( $field_group['ID'], 'content_block', $field_group['content_block'] );
 	}
 
 	public static function has_content_blocks( $location, $post_id = null ) {
@@ -103,6 +149,9 @@ class ACF_Content_Blocks {
 		return array();
 	}
 
+	/**
+	 * Initialize
+	 */
 	public function initialize() {
 		$this->field_groups = $this->get_acf_content_blocks();
 
@@ -125,6 +174,9 @@ class ACF_Content_Blocks {
 	<?php
 	}
 
+	/**
+	 * Register Block Preset custom post type
+	 */
 	public function register_block_presets_cpt() {
 		$labels = array(
 			'name'                  => _x( 'Block Presets', 'Post Type General Name', 'acf-content-blocks' ),
@@ -422,31 +474,42 @@ class ACF_Content_Blocks {
 		return $layouts;
 	}
 
+	/**
+	 * Get all content blocks
+	 *
+	 * @return array
+	 */
 	private function get_acf_content_blocks() {
 		$content_blocks = array();
 
-		$field_groups = get_posts( array(
+		$field_groups = new WP_Query( array(
 			'post_type' => 'acf-field-group',
 			'posts_per_page' => -1,
-			'orderby' => 'title',
-			'order' => 'asc',
-			'suppress_filters' => false,
-			'post_status' => array( 'acf-disabled' ),
-			'update_post_meta_cache' => false,
+			'orderby' => 'menu_order title',
+			'order'   => 'asc',
+			'meta_query' => array(
+				array(
+					'key' => 'content_block',
+					'value' => 1,
+					'type' => 'NUMERIC',
+				),
+			),
 		) );
 
-		foreach ( $field_groups as $field_group ) {
-			if ( '[BLOCK]' === substr( $field_group->post_title, 0, 7 ) ) {
-				$field_group_id = $field_group->post_name;
+		if ( $field_groups->have_posts() ) {
+			while ( $field_groups->have_posts() ) {
+				$field_groups->the_post();
+
+				$field_group_id = get_post_field( 'post_name' );
 				$field_group_hash = str_replace( 'group_', '', $field_group_id );
-				$field_group_title = str_replace( '[BLOCK] ', '', $field_group->post_title );
+				$field_group_title = get_the_title();
 				$field_group_name = strtolower( str_replace( ' ', '_', $field_group_title ) );
 
 				$content_blocks[] = (object) array(
-					'id' => $field_group_id,
-					'hash' => $field_group_hash,
+					'id'    => $field_group_id,
+					'hash'  => $field_group_hash,
 					'title' => $field_group_title,
-					'name' => $field_group_name,
+					'name'  => $field_group_name,
 				);
 			}
 		}
