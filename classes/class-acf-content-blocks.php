@@ -44,11 +44,11 @@ class ACF_Content_Blocks {
 		add_action( 'acf/update_field_group', array( $this, 'update_field_group_block_option' ) );
 
 		add_filter( 'acf/prepare_field/key=field_acb_content_blocks', array( $this, 'prepare_content_blocks_field' ) );
-		add_filter( 'acf/prepare_field/key=field_acb_use_preset', array( $this, 'hide_preset_fields' ) );
-		add_filter( 'acf/prepare_field/key=field_acb_preset', array( $this, 'hide_preset_fields' ) );
-		add_filter( 'acf/prepare_field/key=field_acb_content_block', array( $this, 'remove_content_block_conditional_logic' ) );
+		add_filter( 'acf/prepare_field/name=acb_use_preset', array( $this, 'hide_preset_fields' ) );
+		add_filter( 'acf/prepare_field/name=acb_preset', array( $this, 'hide_preset_fields' ) );
+		add_filter( 'acf/prepare_field/name=acb_content_block', array( $this, 'remove_content_block_conditional_logic' ) );
 
-		add_filter( 'acf/fields/post_object/query/key=field_acb_preset', array( $this, 'filter_preset_field_presets' ), 10, 2 );
+		add_filter( 'acf/fields/post_object/query/name=acb_preset', array( $this, 'filter_preset_field_presets' ), 10, 2 );
 
 		add_filter( 'manage_edit-acf-field-group_columns', array( $this, 'filter_field_group_columns' ), 11, 1 );
 		add_action( 'manage_acf-field-group_posts_custom_column', array( $this, 'render_field_group_columns' ), 11, 2 );
@@ -426,7 +426,7 @@ class ACF_Content_Blocks {
 
 			$sub_fields = array(
 				array(
-					'key'               => 'field_acb_use_preset',
+					'key'               => "field_${field_group_hash}_use_preset",
 					'label'             => 'Use Preset',
 					'name'              => 'acb_use_preset',
 					'type'              => 'true_false',
@@ -445,7 +445,7 @@ class ACF_Content_Blocks {
 					'ui_off_text'       => '',
 				),
 				array(
-					'key'               => 'field_acb_preset',
+					'key'               => "field_${field_group_hash}_preset",
 					'label'             => 'Preset',
 					'name'              => 'acb_preset',
 					'type'              => 'post_object',
@@ -454,7 +454,7 @@ class ACF_Content_Blocks {
 					'conditional_logic' => array(
 						array(
 							array(
-								'field'    => 'field_acb_use_preset',
+								'field'    => "field_${field_group_hash}_use_preset",
 								'operator' => '==',
 								'value'    => '1',
 							),
@@ -473,7 +473,7 @@ class ACF_Content_Blocks {
 					'ui'               => 1,
 				),
 				array(
-					'key'               => 'field_acb_content_block',
+					'key'               => "field_${field_group_hash}_content_block",
 					'label'             => '',
 					'name'              => 'acb_content_block',
 					'type'              => 'clone',
@@ -482,7 +482,7 @@ class ACF_Content_Blocks {
 					'conditional_logic' => array(
 						array(
 							array(
-								'field'    => 'field_acb_use_preset',
+								'field'    => "field_${field_group_hash}_use_preset",
 								'operator' => '!=',
 								'value'    => '1',
 							),
