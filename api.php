@@ -59,3 +59,13 @@ function get_content_block_field( $selector, $format_value = true ) {
 function the_content_block_field( $selector, $format_value = true ) {
 	ACF_Content_Blocks::the_content_block_field( $selector, $format_value );
 }
+
+/**
+ * Alias for ACF get_row_layout function
+ *
+ * @param string $context Context.
+ * @return string
+ */
+function get_content_block_name( $context = 'template' ) {
+	return ACF_Content_Blocks::get_content_block_name( $context );
+}
