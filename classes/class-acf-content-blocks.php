@@ -251,13 +251,13 @@ class ACF_Content_Blocks {
 		$use_preset = get_sub_field( 'acb_use_preset' );
 
 		if ( empty( $use_preset ) ) {
-			return get_sub_field( $selector, $format_value );
+			$content_block = get_sub_field( 'acb_content_block', $format_value );
+			return isset( $content_block[ $selector ] ) ? $content_block[ $selector ] : false;
 		}
 
 		$preset_id = get_sub_field( 'acb_preset' );
-		$layout_name = get_row_layout();
 
-		return get_field( 'acb_content_blocks_0_' . $layout_name . '_' . $selector, $preset_id, $format_value );
+		return get_field( 'acb_content_blocks_0_' . $selector, $preset_id, $format_value );
 	}
 
 	/**
@@ -274,6 +274,22 @@ class ACF_Content_Blocks {
 		}
 
 		echo $value; // WPCS: xss ok.
+	}
+
+	/**
+	 * Alias for ACF get_row_layout function
+	 *
+	 * @param string $context Context.
+	 * @return string
+	 */
+	public static function get_content_block_name( $context = 'template' ) {
+		$name = get_row_layout();
+
+		if ( 'template' === $context ) {
+			$name = str_replace( '_', '-', $name );
+		}
+
+		return $name;
 	}
 
 	/**
