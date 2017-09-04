@@ -16,10 +16,11 @@ if ( ! class_exists( 'ACF_Content_Blocks' ) ) {
  *
  * @uses ACF_Content_Blocks::have_content_blocks
  *
- * @param WP_Post|integer|null $post The post of which the value is saved against.
+ * @param  string               $prefix ACF field group prefix.
+ * @param  WP_Post|integer|null $post   The post of which the value is saved against.
  * @return boolean
  */
-function have_content_blocks( $post = null ) {
+function have_content_blocks( $prefix = '', $post = null ) {
 	return ACF_Content_Blocks::have_content_blocks( $post );
 }
 
@@ -28,7 +29,7 @@ function have_content_blocks( $post = null ) {
  *
  * @uses ACF_Content_Blocks::the_content_block
  *
- * @param boolean $format_values Whether or not to format values.
+ * @param  boolean $format_values Whether or not to format values.
  * @return array Current block data.
  */
 function the_content_block( $format_values = false ) {
@@ -63,9 +64,34 @@ function the_content_block_field( $selector, $format_value = true ) {
 /**
  * Alias for ACF get_row_layout function
  *
- * @param string $context Context.
+ * @param  string $context Context.
  * @return string
  */
 function get_content_block_name( $context = 'template' ) {
 	return ACF_Content_Blocks::get_content_block_name( $context );
+}
+
+/**
+ * Renders content blocks.
+ *
+ * @param  string $prefix ACF field group prefix.
+ * @return void
+ */
+function the_content_blocks( $prefix = '' ) {
+	if ( have_content_blocks( $prefix ) ) {
+		while ( have_content_blocks( $prefix ) ) {
+			the_content_block();
+
+			$content_block_name = get_content_block_name();
+
+			get_template_part(
+				apply_filters(
+					'acb_content_block_get_template_part',
+					'blocks/' . $content_block_name,
+					$content_block_name,
+					$prefix
+				)
+			);
+		}
+	}
 }

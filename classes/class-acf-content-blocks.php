@@ -262,10 +262,11 @@ class ACF_Content_Blocks {
 	 * of a content blocks field, after which, it will determine if another
 	 * row exists to loop through.
 	 *
-	 * @param  WP_Post|integer|null $post The post of which the value is saved against.
+	 * @param  string               $prefix ACF field group prefix.
+	 * @param  WP_Post|integer|null $post   The post of which the value is saved against.
 	 * @return boolean
 	 */
-	public static function have_content_blocks( $post = null ) {
+	public static function have_content_blocks( $prefix = '', $post = null ) {
 		if ( null === $post ) {
 			global $post;
 		} else {
@@ -276,7 +277,11 @@ class ACF_Content_Blocks {
 			return false;
 		}
 
-		return have_rows( 'acb_content_blocks', $post->ID );
+		if ( $prefix && substr( $prefix, -1 ) !== '_' ) {
+			$prefix .= '_';
+		}
+
+		return have_rows( $prefix . 'acb_content_blocks', $post->ID );
 	}
 
 	/**
@@ -622,6 +627,10 @@ class ACF_Content_Blocks {
 	 * @return boolean
 	 */
 	public static function is_acb_block_preset_screen() {
+		if ( ! is_admin() ) {
+			return false;
+		}
+
 		$screen = get_current_screen();
 
 		return ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type );
