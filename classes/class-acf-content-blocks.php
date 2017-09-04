@@ -145,7 +145,8 @@ class ACF_Content_Blocks {
 	 * @return string
 	 */
 	public function get_no_value_message( $default, $field ) {
-		if ( self::is_acb_block_preset_screen() && $field['key'] === self::FIELD_KEY ) {
+		if ( self::is_acb_block_preset_screen() && self::FIELD_KEY === $field['key'] ) {
+			// translators: %s represents the button label.
 			return __( 'Click the "%s" button below to start creating your block preset', 'acf-content-blocks' );
 		}
 
@@ -250,7 +251,7 @@ class ACF_Content_Blocks {
 	 * @return array
 	 */
 	public static function get_field_group_acb_content_blocks( $field_group ) {
-		if ( self::is_acb_block_preset_screen() && $field_group['key'] === self::GROUP_KEY ) {
+		if ( self::is_acb_block_preset_screen() && self::GROUP_KEY === $field_group['key'] ) {
 			$field_group['style'] = 'seamless';
 		}
 
