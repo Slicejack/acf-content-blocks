@@ -9,6 +9,7 @@
  * Plugin class
  */
 class ACF_Content_Blocks {
+
 	/**
 	 * Field groups
 	 *
@@ -17,7 +18,21 @@ class ACF_Content_Blocks {
 	private $field_groups;
 
 	/**
-	 * Returns instance of this class
+	 * Content blocks group key (ID).
+	 *
+	 * @var string
+	 */
+	const GROUP_KEY = 'group_acb_content_blocks';
+
+	/**
+	 * Content blocks field key (ID).
+	 *
+	 * @var string
+	 */
+	const FIELD_KEY = 'field_acb_content_blocks';
+
+	/**
+	 * Returns instance of the ACF content blocks class.
 	 *
 	 * @return ACF_Content_Blocks
 	 */
@@ -32,7 +47,7 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * ACF Content Blocks constructor
+	 * ACF Content Blocks constructor.
 	 */
 	private function __construct() {
 		add_action( 'init', array( $this, 'register_custom_post_type' ), 0 );
@@ -42,6 +57,7 @@ class ACF_Content_Blocks {
 		add_filter( 'acf/validate_field_group', array( $this, 'add_field_group_block_option' ) );
 		add_action( 'acf/render_field_group_settings', array( $this, 'render_field_group_block_option' ) );
 		add_action( 'acf/update_field_group', array( $this, 'update_field_group_block_option' ) );
+		add_action( 'acf/get_field_group', array( $this, 'get_field_group_acb_content_blocks' ) );
 
 		add_filter( 'acf/prepare_field/key=field_acb_content_blocks', array( $this, 'prepare_content_blocks_field' ) );
 		add_filter( 'acf/prepare_field/name=acb_use_preset', array( $this, 'hide_preset_fields' ) );
@@ -49,18 +65,20 @@ class ACF_Content_Blocks {
 		add_filter( 'acf/prepare_field/name=acb_content_block', array( $this, 'remove_content_block_conditional_logic' ) );
 
 		add_filter( 'acf/fields/post_object/query/name=acb_preset', array( $this, 'filter_preset_field_presets' ), 10, 2 );
+		add_filter( 'acf/fields/flexible_content/no_value_message', array( $this, 'get_no_value_message' ), 10, 2 );
 
 		add_filter( 'manage_edit-acf-field-group_columns', array( $this, 'filter_field_group_columns' ), 11, 1 );
 		add_action( 'manage_acf-field-group_posts_custom_column', array( $this, 'render_field_group_columns' ), 11, 2 );
 	}
 
 	/**
-	 * Filters ACF field group columns
+	 * Filters the ACF field group columns. Adds a block preset table
+	 * column within the ACF fields groups screen.
 	 *
-	 * @param array $columns ACF columns.
+	 * @param  array $columns ACF columns.
 	 * @return array
 	 */
-	public function filter_field_group_columns( $columns ) {
+	public static function filter_field_group_columns( $columns ) {
 		$status_key_index = array_search( 'acf-fg-status', array_keys( $columns ), true );
 		$column = array(
 			'acb-is-content-block' => '<i class="dashicons-before dashicons-screenoptions acf-js-tooltip" title="' . esc_attr__( 'Is Content Block?', 'acf-content-blocks' ) . '"></i>',
@@ -78,10 +96,12 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Render ACF field group columns
+	 * Renders the ACF field group columns. Populates the custom block preset
+	 * table column.
 	 *
-	 * @param string  $column  Column name.
-	 * @param integer $post_id Post ID.
+	 * @param  string  $column  Column name.
+	 * @param  integer $post_id Post ID.
+	 * @return void
 	 */
 	public function render_field_group_columns( $column, $post_id ) {
 		$field_group = acf_get_field_group( $post_id );
@@ -96,10 +116,11 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Filter preset field presets
+	 * Filter preset field presets. Only allows selecting presets that are
+	 * of the same type as the parent content block.
 	 *
-	 * @param array $args  Query arguments.
-	 * @param array $field ACF field.
+	 * @param  array $args  Query arguments.
+	 * @param  array $field ACF field.
 	 * @return array
 	 */
 	public function filter_preset_field_presets( $args, $field ) {
@@ -108,7 +129,7 @@ class ACF_Content_Blocks {
 
 		$args['meta_query'] = array(
 			array(
-				'key' => 'acb_content_blocks',
+				'key'   => 'acb_content_blocks',
 				'value' => serialize( array( $layout['name'] ) ),
 			),
 		);
@@ -117,15 +138,28 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Hide preset fields in preset custom post type
+	 * Customizes block preset flexible content no_value_message.
 	 *
-	 * @param array $field ACF field.
+	 * @param  string $default Default no_value_message.
+	 * @param  array  $field   ACF field.
+	 * @return string
+	 */
+	public function get_no_value_message( $default, $field ) {
+		if ( self::is_acb_block_preset_screen() && $field['key'] === self::FIELD_KEY ) {
+			return __( 'Click the "%s" button below to start creating your block preset', 'acf-content-blocks' );
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Hides preset fields in block preset custom post type.
+	 *
+	 * @param  array $field ACF field.
 	 * @return array|false
 	 */
 	public function hide_preset_fields( $field ) {
-		$screen = get_current_screen();
-
-		if ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type ) {
+		if ( self::is_acb_block_preset_screen() ) {
 			return false;
 		}
 
@@ -133,15 +167,13 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Remove section field conditional logic in preset custom post type
+	 * Remove section field conditional logic in preset custom post type.
 	 *
-	 * @param array $field ACF field.
+	 * @param  array $field ACF field.
 	 * @return array
 	 */
 	public function remove_content_block_conditional_logic( $field ) {
-		$screen = get_current_screen();
-
-		if ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type ) {
+		if ( self::is_acb_block_preset_screen() ) {
 			$field['conditional_logic'] = 0;
 		}
 
@@ -149,27 +181,27 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Allow only one layout in preset
+	 * Updates the settings of the ACF content blocks field if located within
+	 * the block preset admin screen.
 	 *
-	 * @param array $field ACF field.
+	 * @param  array $field ACF field.
 	 * @return array
 	 */
 	public function prepare_content_blocks_field( $field ) {
-		$screen = get_current_screen();
-
-		if ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type ) {
+		if ( self::is_acb_block_preset_screen() ) {
 			$field['required'] = 1;
 			$field['min'] = '1';
 			$field['max'] = '1';
+			$field['label'] = __( 'Block Preset', 'acf-content-blocks' );
 		}
 
 		return $field;
 	}
 
 	/**
-	 * Adds block option to field group array
+	 * Adds block option to field group array.
 	 *
-	 * @param array $field_group ACF field group.
+	 * @param  array $field_group ACF field group.
 	 * @return array
 	 */
 	public static function add_field_group_block_option( $field_group ) {
@@ -183,13 +215,15 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Renders block option in Options metabox
+	 * Renders the content block option within the field group options metabox.
+	 *
+	 * @return void
 	 */
 	public static function render_field_group_block_option() {
-		global $field_group;
+		global $field_group; // Y tho :/.
 
 		acf_render_field_wrap( array(
-			'label'        => __( 'Content Block', 'acf' ),
+			'label'        => __( 'Content block', 'acf-content-blocks' ),
 			'instructions' => '',
 			'type'         => 'true_false',
 			'name'         => 'content_block',
@@ -202,10 +236,25 @@ class ACF_Content_Blocks {
 	/**
 	 * Update field group's content_block post meta.
 	 *
-	 * @param array $field_group ACF field group.
+	 * @param  array $field_group ACF field group.
+	 * @return void
 	 */
 	public static function update_field_group_block_option( $field_group ) {
 		update_post_meta( $field_group['ID'], 'content_block', $field_group['content_block'] );
+	}
+
+	/**
+	 * Updates the style property of the group_acb_content_blocks field group.
+	 *
+	 * @param  array $field_group ACF field group.
+	 * @return array
+	 */
+	public static function get_field_group_acb_content_blocks( $field_group ) {
+		if ( self::is_acb_block_preset_screen() && $field_group['key'] === self::GROUP_KEY ) {
+			$field_group['style'] = 'seamless';
+		}
+
+		return $field_group;
 	}
 
 	/**
@@ -213,7 +262,7 @@ class ACF_Content_Blocks {
 	 * of a content blocks field, after which, it will determine if another
 	 * row exists to loop through.
 	 *
-	 * @param WP_Post|integer|null $post The post of which the value is saved against.
+	 * @param  WP_Post|integer|null $post The post of which the value is saved against.
 	 * @return boolean
 	 */
 	public static function have_content_blocks( $post = null ) {
@@ -233,7 +282,7 @@ class ACF_Content_Blocks {
 	/**
 	 * Alias of ACF the_row function.
 	 *
-	 * @param boolean $format_values Whether or not to format values.
+	 * @param  boolean $format_values Whether or not to format values.
 	 * @return array Current block data.
 	 */
 	public static function the_content_block( $format_values = false ) {
@@ -243,8 +292,8 @@ class ACF_Content_Blocks {
 	/**
 	 * Returns content block field value
 	 *
-	 * @param string  $selector     The field name or key.
-	 * @param boolean $format_value Whether or not to format the value.
+	 * @param  string  $selector     The field name or key.
+	 * @param  boolean $format_value Whether or not to format the value.
 	 * @return mixed
 	 */
 	public static function get_content_block_field( $selector, $format_value = true ) {
@@ -263,14 +312,15 @@ class ACF_Content_Blocks {
 	/**
 	 * Displays content block field value
 	 *
-	 * @param string  $selector     The field name or key.
-	 * @param boolean $format_value Whether or not to format the value.
+	 * @param  string  $selector     The field name or key.
+	 * @param  boolean $format_value Whether or not to format the value.
+	 * @return void
 	 */
 	public static function the_content_block_field( $selector, $format_value = true ) {
 		$value = ACF_Content_Blocks::get_content_block_field( $selector, $format_value );
 
 		if ( is_array( $value ) ) {
-			$value = @join( ', ', $value );
+			$value = @implode( ', ', $value );
 		}
 
 		echo $value; // WPCS: xss ok.
@@ -279,7 +329,7 @@ class ACF_Content_Blocks {
 	/**
 	 * Alias for ACF get_row_layout function
 	 *
-	 * @param string $context Context.
+	 * @param  string $context Context.
 	 * @return string
 	 */
 	public static function get_content_block_name( $context = 'template' ) {
@@ -293,7 +343,9 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Initialize
+	 * Initializes the ACF content blocks plugin.
+	 *
+	 * @return void
 	 */
 	public function initialize() {
 		$this->field_groups = $this->get_acf_content_blocks();
@@ -302,9 +354,11 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Register Block Preset custom post type
+	 * Registers the "Block Preset" custom post type.
+	 *
+	 * @return void
 	 */
-	public function register_custom_post_type() {
+	public static function register_custom_post_type() {
 		$labels = array(
 			'name'                  => _x( 'Block Presets', 'Post Type General Name', 'acf-content-blocks' ),
 			'singular_name'         => _x( 'Block Preset', 'Post Type Singular Name', 'acf-content-blocks' ),
@@ -361,12 +415,14 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Register content blocks component field group
+	 * Registers the content blocks component field group.
+	 *
+	 * @return void
 	 */
 	private function register_content_blocks_component_field_group() {
 		$fields = array(
 			array(
-				'key'               => 'field_acb_content_blocks',
+				'key'               => self::FIELD_KEY,
 				'label'             => 'Content Blocks',
 				'name'              => 'acb_content_blocks',
 				'type'              => 'flexible_content',
@@ -396,8 +452,8 @@ class ACF_Content_Blocks {
 		);
 
 		acf_add_local_field_group( array(
-			'key'                   => 'group_acb_content_blocks',
-			'title'                 => '[COMPONENT] Content Blocks',
+			'key'                   => self::GROUP_KEY,
+			'title'                 => 'ACF Content Blocks',
 			'fields'                => $fields,
 			'location'              => $location,
 			'menu_order'            => 0,
@@ -413,7 +469,7 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Content blocks flexible content layouts
+	 * Returns the content blocks flexible content layouts array.
 	 *
 	 * @return array
 	 */
@@ -517,7 +573,7 @@ class ACF_Content_Blocks {
 	}
 
 	/**
-	 * Get all content blocks
+	 * Returns the content blocks array.
 	 *
 	 * @return array
 	 */
@@ -525,18 +581,18 @@ class ACF_Content_Blocks {
 		$content_blocks = array();
 
 		$field_groups = new WP_Query( array(
-			'post_type' => 'acf-field-group',
-			'posts_per_page' => 100, // Probably we won't have more then 100 field groups.
-			'orderby' => 'menu_order title',
-			'order'   => 'asc',
-			'meta_query' => array(
+			'post_type'      => 'acf-field-group',
+			'posts_per_page' => 100,
+			'orderby'        => 'menu_order title',
+			'order'          => 'asc',
+			'meta_query'     => array(
 				array(
-					'key' => 'content_block',
+					'key'   => 'content_block',
 					'value' => 1,
-					'type' => 'NUMERIC',
+					'type'  => 'NUMERIC',
 				),
 			),
-			'post_status' => 'any',
+			'post_status'    => 'any',
 		) );
 
 		if ( $field_groups->have_posts() ) {
@@ -559,6 +615,18 @@ class ACF_Content_Blocks {
 
 		return $content_blocks;
 	}
+
+	/**
+	 * Checks if the post type of the current admin screen is "acb_block_preset".
+	 *
+	 * @return boolean
+	 */
+	public static function is_acb_block_preset_screen() {
+		$screen = get_current_screen();
+
+		return ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type );
+	}
+
 }
 
 ACF_Content_Blocks::get_instance();
