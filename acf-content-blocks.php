@@ -3,7 +3,7 @@
  * Plugin Name: ACF Content Blocks
  * Plugin URI: https://github.com/Slicejack/acf-content-blocks
  * Description: ACF Content Blocks
- * Version: alpha-0.1
+ * Version: 0.2.0
  * Author: Slicejack
  * Author URI: https://slicejack.com/
  * License: GNU General Public License v3.0
@@ -14,8 +14,14 @@
  * @package ACF_Content_Blocks
  */
 
-// Require ACF Content Blocks class.
-require_once trailingslashit( __DIR__ ) . 'classes/class-acf-content-blocks.php';
-
-// API.
+// Require plugin class.
+require_once trailingslashit( __DIR__ ) . 'classes/class-plugin.php';
+// Require utils class.
+require_once trailingslashit( __DIR__ ) . 'classes/class-utils.php';
+// Require API class.
+require_once trailingslashit( __DIR__ ) . 'classes/class-api.php';
+// Require API functions.
 require_once trailingslashit( __DIR__ ) . 'api.php';
+
+
+\ACF_Content_Blocks\Plugin::get_instance();
