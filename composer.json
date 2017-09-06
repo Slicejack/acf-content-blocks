@@ -1,0 +1,13 @@
+{
+    "name": "slicejack/acf-content-blocks",
+    "description": "ACF Content Blocks WP Plugin",
+    "type": "project",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.2",
+        "wp-coding-standards/wpcs": "^0.13.1"
+    },
+    "license": "GNU General Public License v3.0",
+    "minimum-stability": "dev",
+    "require": {}
+}
