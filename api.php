@@ -10,7 +10,7 @@
  * of a content blocks field, after which, it will determine if another
  * row exists to loop through.
  *
- * @uses ACF_Content_Blocks\API::have_content_blocks
+ * @uses \ACF_Content_Blocks\API::have_content_blocks
  *
  * @param  string               $prefix ACF field group prefix.
  * @param  WP_Post|integer|null $post   The post of which the value is saved against.
@@ -23,7 +23,7 @@ function have_content_blocks( $prefix = '', $post = null ) {
 /**
  * Alias of ACF the_row function.
  *
- * @uses ACF_Content_Blocks\API::the_content_block
+ * @uses \ACF_Content_Blocks\API::the_content_block
  *
  * @param  boolean $format_values Whether or not to format values.
  * @return array Current block data.
@@ -35,7 +35,7 @@ function the_content_block( $format_values = false ) {
 /**
  * Returns content block field value
  *
- * @uses ACF_Content_Blocks\API::get_content_block_field
+ * @uses \ACF_Content_Blocks\API::get_content_block_field
  *
  * @param  string  $selector     The field name or key.
  * @param  boolean $format_value Whether or not to format the value.
@@ -48,7 +48,7 @@ function get_content_block_field( $selector, $format_value = true ) {
 /**
  * Displays content block field value
  *
- * @uses ACF_Content_Blocks\API::the_content_block_field
+ * @uses \ACF_Content_Blocks\API::the_content_block_field
  *
  * @param  string  $selector      The field name or key.
  * @param  boolean $format_value  Whether or not to format the value.
@@ -61,7 +61,7 @@ function the_content_block_field( $selector, $format_value = true ) {
 /**
  * Alias for ACF get_row_layout function
  *
- * @uses ACF_Content_Blocks\API::get_content_block_name
+ * @uses \ACF_Content_Blocks\API::get_content_block_name
  *
  * @param  string $context  Context.
  * @return string

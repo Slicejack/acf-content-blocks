@@ -272,7 +272,7 @@ class Plugin {
 	}
 
 	/**
-	 * Does a plugin prerequisites checks. Renders error message(s) if the check has failed.
+	 * Does a plugin prerequisites check. Stores errors and/or warnings for later use.
 	 *
 	 * @return void
 	 */
