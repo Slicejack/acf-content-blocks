@@ -27,7 +27,7 @@ class Plugin {
 	const FIELD_KEY = 'field_acb_content_blocks';
 
 	/**
-	 * Field groups
+	 * Field groups.
 	 *
 	 * @var array
 	 */
