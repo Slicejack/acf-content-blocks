@@ -1,0 +1,11 @@
+.acf-field[data-name="acb_content_block"] {
+	padding: 0 !important;
+}
+
+.acf-field[data-name="acb_content_block"] > .acf-label {
+	display: none;
+}
+
+.acf-field[data-name="acb_content_block"] > .acf-input > .acf-clone-fields {
+	border: 0;
+}

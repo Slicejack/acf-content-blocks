@@ -85,4 +85,14 @@ class Utils {
 		<?php
 	}
 
+	/**
+	 * Returns the url to a file within the ACF Content Blocks plugin directory.
+	 *
+	 * @param  string $path Path to the file.
+	 * @return string
+	 */
+	public static function get_dir( $path ) {
+		return str_replace( 'classes/', '' , plugin_dir_url( __FILE__ ) . $path );
+	}
+
 }

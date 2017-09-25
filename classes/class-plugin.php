@@ -27,6 +27,13 @@ class Plugin {
 	const FIELD_KEY = 'field_acb_content_blocks';
 
 	/**
+	 * Plugin version.
+	 *
+	 * @var string
+	 */
+	private $version = '0.2.1';
+
+	/**
 	 * Field groups.
 	 *
 	 * @var array
@@ -63,6 +70,10 @@ class Plugin {
 			$this->do_prerequisites_check();
 			$this->register_custom_post_type();
 		}, 0 );
+
+		add_action( 'admin_enqueue_scripts', function() {
+			$this->enqueue_admin_assets();
+		} );
 
 		add_action( 'admin_notices', function() {
 			$this->render_admin_notices();
@@ -367,6 +378,15 @@ class Plugin {
 		);
 
 		register_post_type( 'acb_block_preset', $args );
+	}
+
+	/**
+	 * Enqueue admin assets (CSS & JS).
+	 *
+	 * @return void
+	 */
+	private function enqueue_admin_assets() {
+		wp_enqueue_style( 'acf-content-blocks', Utils::get_dir( 'assets/css/acf-content-blocks.css' ), array(), $this->version );
 	}
 
 	/**
