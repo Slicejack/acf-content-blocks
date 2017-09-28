@@ -72,15 +72,25 @@ class Utils {
 	/**
 	 * Renders the admin notice with a given message.
 	 *
-	 * @param  string $message  Notice message.
-	 * @param  string $class    Notice type class.
+	 * @param  string  $message        Notice message.
+	 * @param  string  $type           Notice type.
+	 * @param  boolean $is_dismissible Set to true to apply closing icon.
 	 * @return void
 	 */
-	public static function render_admin_notice( $message, $class ) {
-		$classes = 'notice notice-' . $class;
+	public static function render_admin_notice( $message, $type = 'info', $is_dismissible = false ) {
+		$classes = array( 'notice' );
+		$allowed_types = array( 'error', 'warning', 'success', 'info' );
+
+		if ( in_array( $type, $allowed_types, true ) ) {
+			$classes[] = "notice-${type}";
+		}
+
+		if ( true === $is_dismissible ) {
+			$classes[] = 'is-dismissible';
+		}
 		?>
-		<div class="<?php echo esc_html( $classes ); ?>">
-			<p><?php echo $message; // WPCS: xss ok. ?></p>
+		<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
+			<p><?php echo esc_html( $message ); ?></p>
 		</div>
 		<?php
 	}
