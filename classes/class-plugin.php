@@ -290,11 +290,7 @@ class Plugin {
 	private function do_prerequisites_check() {
 		$notices = array();
 
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		}
-
-		if ( ! is_plugin_active( 'advanced-custom-fields-pro/acf.php' ) ) {
+		if ( ! function_exists( 'get_field' ) ) {
 			$notices[] = apply_filters(
 				'acb_prerequisites_check_acf_pro_missing_message',
 				__(
