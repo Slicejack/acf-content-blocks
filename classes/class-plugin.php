@@ -27,11 +27,25 @@ class Plugin {
 	const FIELD_KEY = 'field_acb_content_blocks';
 
 	/**
-	 * Field groups
+	 * Plugin version.
+	 *
+	 * @var string
+	 */
+	private $version = '0.2.1';
+
+	/**
+	 * Field groups.
 	 *
 	 * @var array
 	 */
 	private $field_groups;
+
+	/**
+	 * Admin notices.
+	 *
+	 * @var array
+	 */
+	private $notices;
 
 	/**
 	 * Returns instance of the ACF content blocks class.
@@ -53,8 +67,17 @@ class Plugin {
 	 */
 	private function __construct() {
 		add_action( 'init', function () {
+			$this->do_prerequisites_check();
 			$this->register_custom_post_type();
 		}, 0 );
+
+		add_action( 'admin_enqueue_scripts', function() {
+			$this->enqueue_admin_assets();
+		} );
+
+		add_action( 'admin_notices', function() {
+			$this->render_admin_notices();
+		} );
 
 		add_action( 'acf/init', function () {
 			$this->initialize();
@@ -260,11 +283,48 @@ class Plugin {
 	}
 
 	/**
+	 * Does a plugin prerequisites check. Stores errors and/or warnings for later use.
+	 *
+	 * @return void
+	 */
+	private function do_prerequisites_check() {
+		$notices = array();
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
+
+		if ( ! is_plugin_active( 'advanced-custom-fields-pro/acf.php' ) ) {
+			$notices[] = apply_filters(
+				'acb_prerequisites_check_acf_pro_missing_message',
+				__(
+					'Advanced Custom Fields PRO plugin must be installed and activated in order for the ACF Content Blocks plugin to work.',
+					'acf-content-blocks'
+				)
+			);
+		} elseif ( version_compare( acf_get_full_version( acf_get_setting( 'version' ) ), '5.4.0', '<' ) ) {
+			$notices[] = apply_filters(
+				'acb_prerequisites_check_acf_pro_update_required_message',
+				__(
+					'Your current Advanced Custom Fields PRO version is not supported by the ACF Content Blocks plugin. Please update the Advanced Custom Fields PRO plugin to version 5.4.0 or newer.',
+					'acf-content-blocks'
+				)
+			);
+		}
+
+		$this->notices = $notices;
+	}
+
+	/**
 	 * Registers the "Block Preset" custom post type.
 	 *
 	 * @return void
 	 */
 	private function register_custom_post_type() {
+		if ( ! empty( $this->notices ) ) {
+			return;
+		}
+
 		$labels = array(
 			'name'                  => _x( 'Block Presets', 'Post Type General Name', 'acf-content-blocks' ),
 			'singular_name'         => _x( 'Block Preset', 'Post Type Singular Name', 'acf-content-blocks' ),
@@ -318,6 +378,28 @@ class Plugin {
 		);
 
 		register_post_type( 'acb_block_preset', $args );
+	}
+
+	/**
+	 * Enqueue admin assets (CSS & JS).
+	 *
+	 * @return void
+	 */
+	private function enqueue_admin_assets() {
+		wp_enqueue_style( 'acf-content-blocks', Utils::get_dir( 'assets/css/acf-content-blocks.css' ), array(), $this->version );
+	}
+
+	/**
+	 * Renders the admin notices.
+	 *
+	 * @return void
+	 */
+	private function render_admin_notices() {
+		if ( ! empty( $this->notices ) ) {
+			foreach ( $this->notices as $notice ) {
+				Utils::render_admin_notice( $notice, 'warning' );
+			}
+		}
 	}
 
 	/**

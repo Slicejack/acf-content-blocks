@@ -69,4 +69,30 @@ class Utils {
 		return $content_blocks;
 	}
 
+	/**
+	 * Renders the admin notice with a given message.
+	 *
+	 * @param  string $message  Notice message.
+	 * @param  string $class    Notice type class.
+	 * @return void
+	 */
+	public static function render_admin_notice( $message, $class ) {
+		$classes = 'notice notice-' . $class;
+		?>
+		<div class="<?php echo esc_html( $classes ); ?>">
+			<p><?php echo $message; // WPCS: xss ok. ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Returns the url to a file within the ACF Content Blocks plugin directory.
+	 *
+	 * @param  string $path Path to the file.
+	 * @return string
+	 */
+	public static function get_dir( $path ) {
+		return str_replace( 'classes/', '' , plugin_dir_url( __FILE__ ) . $path );
+	}
+
 }
