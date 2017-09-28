@@ -40,13 +40,38 @@ class API {
 	}
 
 	/**
+	 * Alias of ACF get_row function
+	 *
+	 * @param  boolean $format_values  Whether or not to format values.
+	 * @return array  Current content block data.
+	 */
+	public static function get_content_block( $format_values = false ) {
+		return get_row( $format_values );
+	}
+
+	/**
 	 * Alias of ACF the_row function.
 	 *
 	 * @param  boolean $format_values  Whether or not to format values.
-	 * @return array  Current block data.
+	 * @return array  Current content block data.
 	 */
 	public static function the_content_block( $format_values = false ) {
 		return the_row( $format_values );
+	}
+
+	/**
+	 * Checks if current row in ACF loop is content block.
+	 *
+	 * @return boolean
+	 */
+	public static function is_content_block() {
+		$content_block = self::get_content_block( true );
+
+		if ( empty( $content_block ) || ! isset( $content_block['acb_content_block'] ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

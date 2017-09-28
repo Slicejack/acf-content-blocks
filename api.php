@@ -33,6 +33,15 @@ function the_content_block( $format_values = false ) {
 }
 
 /**
+ * Checks if current row in ACF loop is content block.
+ *
+ * @return boolean
+ */
+function is_content_block() {
+	return ACF_Content_Blocks\API::is_content_block();
+}
+
+/**
  * Returns content block field value
  *
  * @uses ACF_Content_Blocks\API::get_content_block_field
