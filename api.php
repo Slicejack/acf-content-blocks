@@ -12,12 +12,12 @@
  *
  * @uses \ACF_Content_Blocks\API::have_content_blocks
  *
- * @param  string               $prefix ACF field group prefix.
- * @param  WP_Post|integer|null $post   The post of which the value is saved against.
+ * @param  string                      $prefix   ACF field group prefix.
+ * @param  WP_Post|integer|string|null $post_id  The post of which the value is saved against.
  * @return boolean
  */
-function have_content_blocks( $prefix = '', $post = null ) {
-	return ACF_Content_Blocks\API::have_content_blocks( $prefix, $post );
+function have_content_blocks( $prefix = '', $post_id = null ) {
+	return ACF_Content_Blocks\API::have_content_blocks( $prefix, $post_id );
 }
 
 /**
@@ -82,12 +82,13 @@ function get_content_block_name( $context = 'template' ) {
 /**
  * Renders content blocks.
  *
- * @param  string $prefix  ACF field group prefix.
+ * @param  string                       $prefix   ACF field group prefix.
+ * @param  \WP_Post|integer|string|null $post_id  The post of which the value is saved against.
  * @return void
  */
-function the_content_blocks( $prefix = '' ) {
-	if ( have_content_blocks( $prefix ) ) {
-		while ( have_content_blocks( $prefix ) ) {
+function the_content_blocks( $prefix = '', $post_id = null ) {
+	if ( have_content_blocks( $prefix, $post_id ) ) {
+		while ( have_content_blocks( $prefix, $post_id ) ) {
 			the_content_block();
 
 			$content_block_name = get_content_block_name();

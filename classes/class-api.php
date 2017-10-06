@@ -17,18 +17,14 @@ class API {
 	 * of the content blocks field, after which, it will determine if another
 	 * row exists to loop through.
 	 *
-	 * @param  string                $prefix  ACF field group prefix.
-	 * @param  \WP_Post|integer|null $post    The post of which the value is saved against.
+	 * @param  string                       $prefix   ACF field group prefix.
+	 * @param  \WP_Post|integer|string|null $post_id  The post of which the value is saved against.
 	 * @return boolean
 	 */
-	public static function have_content_blocks( $prefix = '', $post = null ) {
-		if ( null === $post ) {
-			global $post;
-		} else {
-			$post = get_post( $post ); // WPCS: override ok.
-		}
+	public static function have_content_blocks( $prefix = '', $post_id = null ) {
+		$post_id = acf_get_valid_post_id( $post_id );
 
-		if ( empty( $post ) ) {
+		if ( ! $post_id ) {
 			return false;
 		}
 
@@ -36,7 +32,7 @@ class API {
 			$prefix .= '_';
 		}
 
-		return have_rows( $prefix . 'acb_content_blocks', $post->ID );
+		return have_rows( $prefix . 'acb_content_blocks', $post_id );
 	}
 
 	/**
