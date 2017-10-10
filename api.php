@@ -92,15 +92,19 @@ function the_content_blocks( $prefix = '', $post_id = null ) {
 			the_content_block();
 
 			$content_block_name = get_content_block_name();
+			$index = get_row_index();
 
-			get_template_part(
-				apply_filters(
-					'acb_content_block_get_template_part',
-					'blocks/' . $content_block_name,
-					$content_block_name,
-					$prefix
-				)
+			$template = apply_filters(
+				'acb_content_block_get_template_part',
+				'blocks/' . $content_block_name,
+				$content_block_name,
+				$prefix,
+				$index
 			);
+
+			if ( ! empty( $template ) ) {
+				get_template_part( $template );
+			}
 		}
 	}
 }
