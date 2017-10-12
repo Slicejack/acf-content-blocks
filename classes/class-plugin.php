@@ -189,10 +189,11 @@ class Plugin {
 		foreach ( $this->field_groups as $field_group ) {
 
 			$field_group_hash = str_replace( 'group_', '', $field_group->id );
+			$field_key_prefix = 'field_' . $field_group_hash . '_';
 
 			$sub_fields = array(
 				array(
-					'key'               => "field_${field_group_hash}_use_preset",
+					'key'               => $field_key_prefix . 'use_preset',
 					'label'             => 'Use Preset',
 					'name'              => 'acb_use_preset',
 					'type'              => 'true_false',
@@ -211,7 +212,7 @@ class Plugin {
 					'ui_off_text'       => '',
 				),
 				array(
-					'key'               => "field_${field_group_hash}_preset",
+					'key'               => $field_key_prefix . 'preset',
 					'label'             => 'Preset',
 					'name'              => 'acb_preset',
 					'type'              => 'post_object',
@@ -220,7 +221,7 @@ class Plugin {
 					'conditional_logic' => array(
 						array(
 							array(
-								'field'    => "field_${field_group_hash}_use_preset",
+								'field'    => $field_key_prefix . 'use_preset',
 								'operator' => '==',
 								'value'    => '1',
 							),
@@ -239,7 +240,7 @@ class Plugin {
 					'ui'               => 1,
 				),
 				array(
-					'key'               => "field_${field_group_hash}_content_block",
+					'key'               => $field_key_prefix . 'content_block',
 					'label'             => '',
 					'name'              => 'acb_content_block',
 					'type'              => 'clone',
@@ -248,7 +249,7 @@ class Plugin {
 					'conditional_logic' => array(
 						array(
 							array(
-								'field'    => "field_${field_group_hash}_use_preset",
+								'field'    => $field_key_prefix . 'use_preset',
 								'operator' => '!=',
 								'value'    => '1',
 							),
@@ -266,6 +267,8 @@ class Plugin {
 					'prefix_name'       => 0,
 				),
 			);
+
+			$sub_fields = apply_filters( 'acb_content_blocks_component_sub_fields', $sub_fields, $field_group_hash, 'field_' . $field_group_hash . '_' );
 
 			$layouts[ $field_group_hash ] = array(
 				'key'        => $field_group_hash,
