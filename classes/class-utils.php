@@ -102,7 +102,7 @@ class Utils {
 	 * @return string
 	 */
 	public static function get_dir( $path ) {
-		return str_replace( 'classes/', '' , plugin_dir_url( __FILE__ ) . $path );
+		return str_replace( 'classes/', '', plugin_dir_url( __FILE__ ) . $path );
 	}
 
 }
