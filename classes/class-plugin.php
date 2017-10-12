@@ -31,7 +31,7 @@ class Plugin {
 	 *
 	 * @var string
 	 */
-	private $version = '0.3.0';
+	private $version = '0.3.1';
 
 	/**
 	 * Field groups.
