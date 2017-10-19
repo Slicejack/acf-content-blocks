@@ -31,7 +31,7 @@ class Plugin {
 	 *
 	 * @var string
 	 */
-	private $version = '0.3.1';
+	private $version = '0.4.0';
 
 	/**
 	 * Field groups.
@@ -187,9 +187,7 @@ class Plugin {
 		$layouts = array();
 
 		foreach ( $this->field_groups as $field_group ) {
-
-			$field_group_hash = str_replace( 'group_', '', $field_group->id );
-			$field_key_prefix = 'field_' . $field_group_hash . '_';
+			$field_key_prefix = 'field_' . $field_group->hash . '_';
 
 			$sub_fields = array(
 				array(
@@ -260,7 +258,7 @@ class Plugin {
 						'class' => '',
 						'id'    => '',
 					),
-					'clone'             => array( $field_group->id ),
+					'clone'             => array( $field_group->key ),
 					'display'           => 'group',
 					'layout'            => 'block',
 					'prefix_label'      => 0,
@@ -268,10 +266,10 @@ class Plugin {
 				),
 			);
 
-			$sub_fields = apply_filters( 'acb_content_blocks_component_sub_fields', $sub_fields, $field_group_hash, 'field_' . $field_group_hash . '_' );
+			$sub_fields = apply_filters( 'acb_content_blocks_component_sub_fields', $sub_fields, $field_group->hash, 'field_' . $field_group->hash . '_' );
 
-			$layouts[ $field_group_hash ] = array(
-				'key'        => $field_group_hash,
+			$layouts[ $field_group->hash ] = array(
+				'key'        => $field_group->hash,
 				'name'       => $field_group->name,
 				'label'      => $field_group->title,
 				'display'    => 'block',
@@ -279,7 +277,6 @@ class Plugin {
 				'min'        => '',
 				'max'        => '',
 			);
-
 		}
 
 		return $layouts;

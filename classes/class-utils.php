@@ -22,7 +22,7 @@ class Utils {
 			return false;
 		}
 
-		$screen = get_current_screen();
+		$screen = ( function_exists( 'get_current_screen' ) ) ? get_current_screen() : array();
 
 		return ( ! empty( $screen ) && 'acb_block_preset' === $screen->post_type );
 	}
@@ -33,9 +33,10 @@ class Utils {
 	 * @return array
 	 */
 	public static function get_acf_content_blocks() {
+		$field_groups = array();
 		$content_blocks = array();
 
-		$field_groups = new \WP_Query( array(
+		$field_group_posts = get_posts( array(
 			'post_type'      => 'acf-field-group',
 			'posts_per_page' => 100,
 			'orderby'        => 'menu_order title',
@@ -50,20 +51,24 @@ class Utils {
 			'post_status'    => 'any',
 		) );
 
-		if ( $field_groups->have_posts() ) {
-			while ( $field_groups->have_posts() ) {
-				$field_groups->the_post();
+		foreach ( $field_group_posts as $field_group_post ) {
+			$field_groups[] = acf_get_field_group( $field_group_post->ID );
+		}
 
-				$field_group_id = get_post_field( 'post_name' );
-				$field_group_hash = str_replace( 'group_', '', $field_group_id );
+		$field_groups = array_filter( apply_filters( 'acf/get_field_groups', $field_groups ), function( $field_group ) {
+			return ( 1 === $field_group['content_block'] );
+		} );
 
-				$content_blocks[] = (object) array(
-					'id'    => $field_group_id,
-					'hash'  => $field_group_hash,
-					'title' => apply_filters( 'acb_content_block_title', get_the_title() ),
-					'name'  => strtolower( str_replace( ' ', '_', get_the_title() ) ),
-				);
-			}
+		foreach ( $field_groups as $field_group ) {
+			$field_group_key = $field_group['key'];
+			$field_group_hash = str_replace( 'group_', '', $field_group_key );
+
+			$content_blocks[] = (object) array(
+				'key'   => $field_group_key,
+				'hash'  => $field_group_hash,
+				'title' => apply_filters( 'acb_content_block_title', $field_group['title'] ),
+				'name'  => strtolower( str_replace( ' ', '_', $field_group['title'] ) ),
+			);
 		}
 
 		return $content_blocks;
