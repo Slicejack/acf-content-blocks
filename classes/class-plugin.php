@@ -215,7 +215,7 @@ class Plugin {
 					'name'              => 'acb_preset',
 					'type'              => 'post_object',
 					'instructions'      => '',
-					'required'          => 1,
+					'required'          => 0,
 					'conditional_logic' => array(
 						array(
 							array(
