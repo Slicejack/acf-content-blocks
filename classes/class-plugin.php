@@ -66,62 +66,119 @@ class Plugin {
 	 * ACF Content Blocks constructor.
 	 */
 	private function __construct() {
-		add_action( 'init', function () {
-			$this->do_prerequisites_check();
-			$this->register_custom_post_type();
-		}, 0 );
+		add_action(
+			'init',
+			function () {
+				$this->do_prerequisites_check();
+				$this->register_custom_post_type();
+			},
+			0
+		);
 
-		add_action( 'admin_enqueue_scripts', function() {
-			$this->enqueue_admin_assets();
-		} );
+		add_action(
+			'admin_enqueue_scripts',
+			function() {
+				$this->enqueue_admin_assets();
+			}
+		);
 
-		add_action( 'admin_notices', function() {
-			$this->render_admin_notices();
-		} );
+		add_action(
+			'admin_notices',
+			function() {
+				$this->render_admin_notices();
+			}
+		);
 
-		add_action( 'acf/init', function () {
-			$this->initialize();
-		} );
+		add_action(
+			'acf/init',
+			function () {
+				$this->initialize();
+			}
+		);
 
-		add_filter( 'acf/validate_field_group', function ( $field_group ) {
-			return $this->add_field_group_block_option( $field_group );
-		} );
-		add_action( 'acf/render_field_group_settings', function ( $field_group ) {
-			$this->render_field_group_block_option( $field_group );
-		} );
-		add_action( 'acf/update_field_group', function ( $field_group ) {
-			$this->update_field_group_block_option( $field_group );
-		} );
-		add_action( 'acf/get_field_group', function ( $field_group ) {
-			return $this->get_field_group_acb_content_blocks( $field_group );
-		} );
+		add_filter(
+			'acf/validate_field_group',
+			function ( $field_group ) {
+				return $this->add_field_group_block_option( $field_group );
+			}
+		);
+		add_action(
+			'acf/render_field_group_settings',
+			function ( $field_group ) {
+				$this->render_field_group_block_option( $field_group );
+			}
+		);
+		add_action(
+			'acf/update_field_group',
+			function ( $field_group ) {
+				$this->update_field_group_block_option( $field_group );
+			}
+		);
+		add_action(
+			'acf/get_field_group',
+			function ( $field_group ) {
+				return $this->get_field_group_acb_content_blocks( $field_group );
+			}
+		);
 
-		add_filter( 'acf/prepare_field/key=field_acb_content_blocks', function ( $field ) {
-			return $this->prepare_content_blocks_field( $field );
-		} );
-		add_filter( 'acf/prepare_field/name=acb_use_preset', function ( $field ) {
-			return $this->hide_preset_fields( $field );
-		} );
-		add_filter( 'acf/prepare_field/name=acb_preset', function ( $field ) {
-			return $this->hide_preset_fields( $field );
-		} );
-		add_filter( 'acf/prepare_field/name=acb_content_block', function ( $field ) {
-			return $this->remove_content_block_conditional_logic( $field );
-		} );
+		add_filter(
+			'acf/prepare_field/key=field_acb_content_blocks',
+			function ( $field ) {
+				return $this->prepare_content_blocks_field( $field );
+			}
+		);
+		add_filter(
+			'acf/prepare_field/name=acb_use_preset',
+			function ( $field ) {
+				return $this->hide_preset_fields( $field );
+			}
+		);
+		add_filter(
+			'acf/prepare_field/name=acb_preset',
+			function ( $field ) {
+				return $this->hide_preset_fields( $field );
+			}
+		);
+		add_filter(
+			'acf/prepare_field/name=acb_content_block',
+			function ( $field ) {
+				return $this->remove_content_block_conditional_logic( $field );
+			}
+		);
 
-		add_filter( 'acf/fields/post_object/query/name=acb_preset', function ( $args, $field ) {
-			return $this->filter_preset_field_presets( $args, $field );
-		}, 10, 2 );
-		add_filter( 'acf/fields/flexible_content/no_value_message', function ( $default, $field ) {
-			return $this->get_no_value_message( $default, $field );
-		}, 10, 2 );
+		add_filter(
+			'acf/fields/post_object/query/name=acb_preset',
+			function ( $args, $field ) {
+				return $this->filter_preset_field_presets( $args, $field );
+			},
+			10,
+			2
+		);
+		add_filter(
+			'acf/fields/flexible_content/no_value_message',
+			function ( $default, $field ) {
+				return $this->get_no_value_message( $default, $field );
+			},
+			10,
+			2
+		);
 
-		add_filter( 'manage_edit-acf-field-group_columns', function ( $columns ) {
-			return $this->filter_field_group_columns( $columns );
-		}, 11, 1 );
-		add_action( 'manage_acf-field-group_posts_custom_column', function ( $column, $post_id ) {
-			$this->render_field_group_columns( $column, $post_id );
-		}, 11, 2 );
+		add_filter(
+			'manage_edit-acf-field-group_columns',
+			function ( $columns ) {
+				return $this->filter_field_group_columns( $columns );
+			},
+			11,
+			1
+		);
+		add_action(
+			'manage_acf-field-group_posts_custom_column',
+			function ( $column, $post_id ) {
+				$this->render_field_group_columns( $column, $post_id );
+			},
+			11,
+			2
+		);
 	}
 
 	/**
@@ -161,21 +218,23 @@ class Plugin {
 			),
 		);
 
-		acf_add_local_field_group( array(
-			'key'                   => self::GROUP_KEY,
-			'title'                 => 'ACF Content Blocks',
-			'fields'                => $fields,
-			'location'              => $location,
-			'menu_order'            => 0,
-			'position'              => 'normal',
-			'style'                 => 'default',
-			'label_placement'       => 'top',
-			'instruction_placement' => 'label',
-			'hide_on_screen'        => '',
-			'active'                => 1,
-			'description'           => '',
-			'content_block'         => 0,
-		) );
+		acf_add_local_field_group(
+			array(
+				'key'                   => self::GROUP_KEY,
+				'title'                 => 'ACF Content Blocks',
+				'fields'                => $fields,
+				'location'              => $location,
+				'menu_order'            => 0,
+				'position'              => 'normal',
+				'style'                 => 'default',
+				'label_placement'       => 'top',
+				'instruction_placement' => 'label',
+				'hide_on_screen'        => '',
+				'active'                => 1,
+				'description'           => '',
+				'content_block'         => 0,
+			)
+		);
 	}
 
 	/**
@@ -225,17 +284,17 @@ class Plugin {
 							),
 						),
 					),
-					'wrapper'          => array(
+					'wrapper'           => array(
 						'width' => '',
 						'class' => '',
 						'id'    => '',
 					),
-					'post_type'        => array( 'acb_block_preset' ),
-					'taxonomy'         => array(),
-					'allow_null'       => 1,
-					'multiple'         => 0,
-					'return_format'    => 'id',
-					'ui'               => 1,
+					'post_type'         => array( 'acb_block_preset' ),
+					'taxonomy'          => array(),
+					'allow_null'        => 1,
+					'multiple'          => 0,
+					'return_format'     => 'id',
+					'ui'                => 1,
 				),
 				array(
 					'key'               => $field_key_prefix . 'content_block',
@@ -432,15 +491,17 @@ class Plugin {
 	 * @return void
 	 */
 	private function render_field_group_block_option( $field_group ) {
-		acf_render_field_wrap( array(
-			'label'        => __( 'Content block', 'acf-content-blocks' ),
-			'instructions' => '',
-			'type'         => 'true_false',
-			'name'         => 'content_block',
-			'prefix'       => 'acf_field_group',
-			'value'        => $field_group['content_block'],
-			'ui'           => 1,
-		) );
+		acf_render_field_wrap(
+			array(
+				'label'        => __( 'Content block', 'acf-content-blocks' ),
+				'instructions' => '',
+				'type'         => 'true_false',
+				'name'         => 'content_block',
+				'prefix'       => 'acf_field_group',
+				'value'        => $field_group['content_block'],
+				'ui'           => 1,
+			)
+		);
 	}
 
 	/**
@@ -476,10 +537,10 @@ class Plugin {
 	 */
 	private function prepare_content_blocks_field( $field ) {
 		if ( Utils::is_block_preset_screen() ) {
-			$field['label'] = __( 'Block Preset', 'acf-content-blocks' );
+			$field['label']    = __( 'Block Preset', 'acf-content-blocks' );
 			$field['required'] = 1;
-			$field['min'] = '1';
-			$field['max'] = '1';
+			$field['min']      = '1';
+			$field['max']      = '1';
 		}
 
 		return $field;
@@ -524,11 +585,13 @@ class Plugin {
 	 */
 	private function filter_preset_field_presets( $args, $field ) {
 		$parent_field = get_field_object( $field['parent'] );
-		$layout = $parent_field['layouts'][ $field['parent_layout'] ];
+		$layout       = $parent_field['layouts'][ $field['parent_layout'] ];
 
-		$args['meta_query'] = array( // WPCS: slow query ok.
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		$args['meta_query'] = array(
 			array(
 				'key'   => 'acb_content_blocks',
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				'value' => serialize( array( $layout['name'] ) ),
 			),
 		);
@@ -561,7 +624,7 @@ class Plugin {
 	 */
 	private function filter_field_group_columns( $columns ) {
 		$status_key_index = array_search( 'acf-fg-status', array_keys( $columns ), true );
-		$column = array(
+		$column           = array(
 			'acb-is-content-block' => '<i class="dashicons-before dashicons-screenoptions acf-js-tooltip" title="' . esc_attr__( 'Is Content Block?', 'acf-content-blocks' ) . '"></i>',
 		);
 

@@ -6,11 +6,13 @@
 language: php
 
 # Declare versions of PHP to use. Use one decimal max.
-php:
-  # aliased to a recent 5.6.x version
-  - "5.6"
-  # aliased to a recent 5.5.x version
-  - "5.5"
+matrix:
+  include:
+    - php: 5.6
+    - php: 7.1
+    - php: 7.2
+      env: SNIFF=1
+    - php: 7.3
 
 # Use this to prepare the system to install prerequisites or dependencies.
 # e.g. sudo apt-get update.
@@ -21,25 +23,8 @@ php:
 # e.g. copy database configurations, environment variables, etc.
 # Failures in this section will result in build status 'errored'.
 before_script:
-  - export PLUGIN_DEV_DIR=/tmp/dev/
-  - mkdir -p $PLUGIN_DEV_DIR
-  - plugin_slug=$(basename $(pwd))
-  - plugin_dir=$PLUGIN_DEV_DIR/$plugin_slug
-  - cd ..
-  - mv $plugin_slug $plugin_dir
-  - cd $PLUGIN_DEV_DIR
-  # Install CodeSniffer for WordPress Coding Standards checks.
-  - git clone https://github.com/squizlabs/PHP_CodeSniffer.git php-codesniffer
-  # Install WordPress Coding Standards.
-  - git clone https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git wordpress-coding-standards
-  # Hop into CodeSniffer directory.
-  - cd php-codesniffer
-  # Set install path for WordPress Coding Standards
-  # @link https://github.com/squizlabs/PHP_CodeSniffer/blob/4237c2fc98cc838730b76ee9cee316f99286a2a7/CodeSniffer.php#L1941
-  - bin/phpcs --config-set installed_paths ../wordpress-coding-standards
-  # Hop into plugins directory.
-  - cd $plugin_dir
-  # After CodeSniffer install you should refresh your path.
+  - if [[ "$SNIFF" == "1" ]]; then composer self-update; fi
+  - if [[ "$SNIFF" == "1" ]]; then composer install; fi
   - phpenv rehash
 
 # Run test script commands.
@@ -48,21 +33,5 @@ before_script:
 script:
   # Search for PHP syntax errors.
   - find . \( -name '*.php' \) | xargs -I file php -lf file
-  # WordPress Coding Standards
-  # @link https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards
-  # @link http://pear.php.net/package/PHP_CodeSniffer/
-  # -p flag: Show progress of the run.
-  # -s flag: Show sniff codes in all reports.
-  # -v flag: Print verbose output.
-  # -n flag: Do not print warnings (shortcut for --warning-severity=0)
-  # --standard: Use WordPress as the standard.
-  # --extensions: Only sniff PHP files.
-  - $PLUGIN_DEV_DIR/php-codesniffer/bin/phpcs -p -s -v -n . --standard=WordPress --extensions=php
-
-# Receive notifications for build results.
-# @link http://docs.travis-ci.com/user/notifications/#Email-notifications
-notifications:
-  email: true
-  slack:
-    secure: hKrcbmupljkBUD4FbbOsN/O6fVdM6IOgfKjBzyCWxMf1JJg66kXqigVlhvlck70OfurEd2bMYc3/ooaF9Mxfln0asI875q96d06OkWWEkiytFVQOifBppcaqPcKRM+9myCxlDH6fA8W0IBR1kahehKriisFiTwDY9DdT4gxRy5xyjGqWfbclqaVCba84dI5f1HcOXFUWLBLSBeK0NSt0ZrHGXcH0QKeQ6SebGV5AvwRtplZjqhdHFNm+gCSjF+wQwQy+jY6d4MUVZFvZygzlh2WS7qIwTG9XjjPJmO3H3Sxyo1/Jlfm9JqEg6E2ajmMaCgc8UkWUakU5HxvWLkGyYxnWnvXfRgxfdIveOJlhmOOcqgcUywx5N/Y8JQ3BwWC6+rEWC5ujNTIGilc/D6cSaUBIpQMokouXVPErDWONJ2BEq9gvzrrCWKl6XsSXGEkdv5oQka33B1+mbEjdeAleXmIzXafE1F35y/EiUXX1qMPlKjy9py7Uw00xc98DsAwwpgJkMHiTQtqPWrU1DKOODu5jsoVyeKXGEuqLC5p0RMEy1IHHjG8Qxg34vVHpNTCl2flh+L7t9zouy6p8E9w35osawY1F6xdXGo+3FPLivBMnMBcyrUNbL9g112KfaV5ygld7y0sej8methkIZRL/dE3KopQfmNFo/pOk0opxNMc=
-    on_success: change
+  # PHP Coding Standards
+  - if [[ "$SNIFF" == "1" ]]; then vendor/bin/phpcs .; fi

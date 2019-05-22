@@ -92,7 +92,7 @@ function the_content_blocks( $prefix = '', $post_id = null ) {
 			the_content_block();
 
 			$content_block_name = get_content_block_name();
-			$index = get_row_index();
+			$index              = get_row_index();
 
 			$template = apply_filters(
 				'acb_content_block_get_template_part',

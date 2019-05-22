@@ -33,34 +33,41 @@ class Utils {
 	 * @return array
 	 */
 	public static function get_acf_content_blocks() {
-		$field_groups = array();
+		$field_groups   = array();
 		$content_blocks = array();
 
-		$field_group_posts = get_posts( array(
-			'post_type'      => 'acf-field-group',
-			'posts_per_page' => 100,
-			'orderby'        => 'menu_order title',
-			'order'          => 'asc',
-			'meta_query'     => array( // WPCS: slow query ok.
-				array(
-					'key'   => 'content_block',
-					'value' => 1,
-					'type'  => 'NUMERIC',
+		$field_group_posts = get_posts(
+			array(
+				'post_type'      => 'acf-field-group',
+				'posts_per_page' => 100,
+				'orderby'        => 'menu_order title',
+				'order'          => 'asc',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'meta_query'     => array(
+					array(
+						'key'   => 'content_block',
+						'value' => 1,
+						'type'  => 'NUMERIC',
+					),
 				),
-			),
-			'post_status'    => 'any',
-		) );
+				'post_status'    => 'any',
+			)
+		);
 
 		foreach ( $field_group_posts as $field_group_post ) {
 			$field_groups[] = acf_get_field_group( $field_group_post->ID );
 		}
 
-		$field_groups = array_filter( apply_filters( 'acf/get_field_groups', $field_groups ), function( $field_group ) {
-			return ( 1 === $field_group['content_block'] );
-		} );
+		$field_groups = array_filter(
+			// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+			apply_filters( 'acf/get_field_groups', $field_groups ),
+			function( $field_group ) {
+				return ( 1 === $field_group['content_block'] );
+			}
+		);
 
 		foreach ( $field_groups as $field_group ) {
-			$field_group_key = $field_group['key'];
+			$field_group_key  = $field_group['key'];
 			$field_group_hash = str_replace( 'group_', '', $field_group_key );
 
 			$content_blocks[] = (object) array(
@@ -83,7 +90,7 @@ class Utils {
 	 * @return void
 	 */
 	public static function render_admin_notice( $message, $type = 'info', $is_dismissible = false ) {
-		$classes = array( 'notice' );
+		$classes       = array( 'notice' );
 		$allowed_types = array( 'error', 'warning', 'success', 'info' );
 
 		if ( in_array( $type, $allowed_types, true ) ) {

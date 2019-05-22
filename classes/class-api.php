@@ -104,7 +104,7 @@ class API {
 			$value = implode( ', ', $value );
 		}
 
-		echo $value; // WPCS: xss ok.
+		echo $value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
