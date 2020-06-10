@@ -179,6 +179,13 @@ class Plugin {
 			11,
 			2
 		);
+		add_action(
+			'admin_menu', 
+			function() {
+				$this->add_acb_locator_menu_page();
+			},
+			11
+		);
 	}
 
 	/**
