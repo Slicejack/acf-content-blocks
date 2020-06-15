@@ -4,8 +4,8 @@
  * Plugin URI: https://github.com/Slicejack/acf-content-blocks
  * Description: ACF Content Blocks
  * Version: 0.4.0
- * Author: Slicejack
- * Author URI: https://slicejack.com/
+ * Author: Agilo
+ * Author URI: https://agilo.co/
  * License: GNU General Public License v3.0
  * License URI: https://github.com/Slicejack/acf-content-blocks/blob/master/LICENSE
  * Text Domain: acf-content-blocks
