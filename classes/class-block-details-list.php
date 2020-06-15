@@ -6,6 +6,13 @@
  */
 
 class Block_Details_List extends WP_List_Table {
+	
+	/**
+	 * Total number of items returned with WP_Query.
+	 *
+	 * @var string
+	 */
+	private $total_items;
 
 	/**
 	 * Prepares the list of items for displaying.
@@ -13,19 +20,17 @@ class Block_Details_List extends WP_List_Table {
 	 * @return void
 	 */
 	public function prepare_items() {
-		$columns = $this->get_columns();
-		$data = $this->get_block_details();
-
 		$per_page = 10;
 		$current_page = $this->get_pagenum();
-		$total_items = count( $data );
-
+		$columns = $this->get_columns();
+		
+		$data = $this->get_block_details( $per_page, $current_page );
+		$total_items = $this->total_items;
+		
 		$this->set_pagination_args( array(
 			'total_items' => $total_items,
 			'per_page'    => $per_page
 		) );
-
-		$data = array_slice( $data, ( ( $current_page - 1 ) * $per_page ), $per_page );
 
 		$this->_column_headers = array( $columns );
 		$this->items = $data;
@@ -105,14 +110,15 @@ class Block_Details_List extends WP_List_Table {
 	 *
 	 * @return mixed
 	 */
-	private function get_block_details() {
+	private function get_block_details( $per_page = 10, $paged = 1 ) {
 		$block = $_GET['block'];
 		$block_name_srtlen = strlen( $block );
 		$data = array();
 		
 		if( $block ) {
 			$args = array(
-				'posts_per_page' => -1,
+				'posts_per_page' => $per_page,
+				'paged' => $paged,
 				'post_type'      => 'any',
 				'meta_query'     => array(
 					'relation'   => 'AND',
@@ -130,6 +136,8 @@ class Block_Details_List extends WP_List_Table {
 			);
 
 			$query = new WP_Query( $args );
+			$this->total_items = $query->found_posts;
+
 			$data = array_map(
 				function( $post ) {
 					return (array) $post; // Cast object to array because prepare_items uses it as an array.
