@@ -31,7 +31,7 @@ jobs:
       run: composer install --prefer-dist --no-progress --no-suggest
 
     - name: Check php syntax
-      run: find . \( -name '*.php' \) | xargs -I file php -lf file
+      run: find . -path ./vendor -prune -o -name '*.php' | xargs -I file php -lf file
     
     - name: PHP Code Sniffer
-      run: vendor/bin/phpcs .
+      run: vendor/bin/phpcs --ignore="*/vendor/*" .
