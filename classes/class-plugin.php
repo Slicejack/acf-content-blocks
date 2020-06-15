@@ -666,4 +666,19 @@ class Plugin {
 		}
 	}
 
+	/**
+	 * Adds Blocks Locator admin page.
+	 *
+	 */
+	private function add_acb_locator_menu_page() {
+		add_menu_page( 
+			'Content Blocks Locator', 
+			'Content Blocks Locator', 
+			'manage_options', 
+			'content-blocks-locator', 
+			function() {
+				Blocks_Locator_Page::render_acb_locator_menu_page();
+			} 
+		);
+	}
 }

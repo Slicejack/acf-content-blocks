@@ -65,13 +65,16 @@ class Blocks_List extends WP_List_Table {
 	private function get_blocks() {
 		$blocks = Utils::get_acf_content_blocks();
 		$data = array();
-		
+
 		if( is_array( $blocks ) && !empty( $blocks ) ) {
-			foreach( $blocks as $block) {
-				$data[] = (array) $block; // Because prepare_items uses it as an array.
-			}
+			$data = array_map(
+				function( $block ) {
+					return (array) $block;  // Cast object to array because prepare_items uses it as an array.
+				},
+				$blocks
+			);
 		}
-		
+			
 		return $data;
 	}
 }

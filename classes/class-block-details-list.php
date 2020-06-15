@@ -16,16 +16,16 @@ class Block_Details_List extends WP_List_Table {
 		$columns = $this->get_columns();
 		$data = $this->get_block_details();
 
-		$perPage = 10;
-		$currentPage = $this->get_pagenum();
-		$totalItems = count( $data );
+		$per_page = 10;
+		$current_page = $this->get_pagenum();
+		$total_items = count( $data );
 
 		$this->set_pagination_args( array(
-			'total_items' => $totalItems,
-			'per_page'    => $perPage
+			'total_items' => $total_items,
+			'per_page'    => $per_page
 		) );
 
-		$data = array_slice( $data, ( ( $currentPage - 1 ) * $perPage ), $perPage );
+		$data = array_slice( $data, ( ( $current_page - 1 ) * $per_page ), $per_page );
 
 		$this->_column_headers = array( $columns );
 		$this->items = $data;
@@ -89,7 +89,7 @@ class Block_Details_List extends WP_List_Table {
 	 */
 	public function column_post_title( $item ) {
 		$edit_link = get_edit_post_link( $item['ID'] );
-		$permalink = get_the_permalink( $item['post_id'] );
+		$permalink = get_the_permalink( $item['ID'] );
 
 		$actions = array(
 			'edit' => '<a href="'. $edit_link . '">Edit</a>',
@@ -106,20 +106,38 @@ class Block_Details_List extends WP_List_Table {
 	 * @return mixed
 	 */
 	private function get_block_details() {
-		global $wpdb;
-
-		$block =  $_GET['block'];
+		$block = $_GET['block'];
 		$block_name_srtlen = strlen( $block );
+		$data = array();
 		
 		if( $block ) {
-			$query = "
-				SELECT * FROM `wp_postmeta` LEFT JOIN `wp_posts` ON `wp_postmeta`.`post_id`=`wp_posts`.`ID` WHERE `wp_posts`.`ID` IS NOT NULL AND `wp_posts`.`post_status` IN ('publish', 'draft' ) AND `meta_key` LIKE '%acb_content_blocks' AND `meta_value` LIKE '%s:$block_name_srtlen:\"$block\"%' GROUP BY `wp_posts`.`ID`ORDER BY `wp_posts`.`post_title`
-			";
-			$result = $wpdb->get_results( $query, 'ARRAY_A' );
-			
-			return $result;
+			$args = array(
+				'posts_per_page' => -1,
+				'post_type'      => 'any',
+				'meta_query'     => array(
+					'relation'   => 'AND',
+					array(
+						'compare_key' => 'LIKE',
+						'key'         => 'acb_content_blocks',
+					),
+					array(
+						'value'   => 's:' . $block_name_srtlen . ':"' . $block . '"',
+						'compare' => 'LIKE'
+					)
+				),
+				'orderby'        => 'post_title',
+				'order'          => 'ASC'
+			);
+
+			$query = new WP_Query( $args );
+			$data = array_map(
+				function( $post ) {
+					return (array) $post; // Cast object to array because prepare_items uses it as an array.
+				},
+				$query->posts
+			);
 		}
-		
-		return false;
+	
+		return $data;
 	}
 }
