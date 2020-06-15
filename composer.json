@@ -2,7 +2,7 @@
     "name": "agilo/acf-content-blocks",
     "description": "ACF Content Blocks WP Plugin",
     "type": "wordpress-plugin",
-    "license": "GNU General Public License v3.0",
+    "license": "GPL-3.0-or-later",
     "require": {
         "composer/installers": "^1.8"
     },
