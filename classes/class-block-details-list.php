@@ -136,7 +136,7 @@ class Block_Details_List extends WP_List_Table {
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
 				'post_type'      => 'any',
-				'meta_query'     => array(
+				'meta_query'     => array( // phpcs:ignore
 					'relation'   => 'AND',
 					array(
 						'compare_key' => 'LIKE',
