@@ -123,21 +123,20 @@ class Utils {
 	 * @param  string $key Query parameter key.
 	 * @return boolean
 	 */
-
 	public static function query_param_is_set( $key ) {
-		return ( isset( $_GET[ $key ] )  && ! empty( $_GET[ $key ] ) );
+		return ( isset( $_GET[ $key ] ) && ! empty( $_GET[ $key ] ) );
 	}
 
 	/**
 	 * Gets content block title by its name.
 	 *
-	 * @param  string $key Query parameter key.
+	 * @param  string $name Block name.
 	 * @return string
 	 */
 	public static function get_content_block_title( $name ) {
 		$title = strtoupper( str_replace( '_', ' ', $name ) );
 		$title = apply_filters( 'acb_content_block_title', $title );
-		
+
 		return $title;
 	}
 

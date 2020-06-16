@@ -5,8 +5,10 @@
  * @package ACF_Content_Blocks
  */
 
+/**
+ * Block Details List Class
+ */
 class Block_Details_List extends WP_List_Table {
-	
 	/**
 	 * Total number of items returned with WP_Query.
 	 *
@@ -15,30 +17,38 @@ class Block_Details_List extends WP_List_Table {
 	private $total_items;
 
 	/**
+	 * Block name.
+	 *
+	 * @var string
+	 */
+	public $block_name;
+
+	/**
 	 * Prepares the list of items for displaying.
 	 *
 	 * @return void
 	 */
 	public function prepare_items() {
-		$per_page = 10;
+		$per_page     = 10;
 		$current_page = $this->get_pagenum();
-		$columns = $this->get_columns();
-		
-		$data = $this->get_block_details( $per_page, $current_page );
-		$total_items = $this->total_items;
-		
-		$this->set_pagination_args( array(
-			'total_items' => $total_items,
-			'per_page'    => $per_page
-		) );
+		$columns      = $this->get_columns();
+		$data         = $this->get_block_details( $per_page, $current_page );
+		$total_items  = $this->total_items;
+
+		$this->set_pagination_args(
+			array(
+				'total_items' => $total_items,
+				'per_page'    => $per_page,
+			)
+		);
 
 		$this->_column_headers = array( $columns );
-		$this->items = $data;
+		$this->items           = $data;
 	}
 
 	/**
 	 * Get a list of columns.
-	 * 
+	 *
 	 * @return array
 	 */
 	public function get_columns() {
@@ -54,20 +64,20 @@ class Block_Details_List extends WP_List_Table {
 	/**
 	 * Define what data to show on each column of the table
 	 *
-	 * @param  array $item          Data.
+	 * @param  array  $item          Data.
 	 * @param  string $column_name  Current column name.
 	 *
 	 * @return mixed
 	 */
 	public function column_default( $item, $column_name ) {
-		switch( $column_name ) {
+		switch ( $column_name ) {
 			case 'post_title':
 			case 'post_type':
 				return $item[ $column_name ];
 			case 'post_status':
 				return ucfirst( $item[ $column_name ] );
 			default:
-				return print_r( $item, true ) ;
+				return $item[ $column_name ];
 		}
 	}
 
@@ -79,7 +89,7 @@ class Block_Details_List extends WP_List_Table {
 	 * @return string
 	 */
 	public function column_post_type( $item ) {
-		$post_type_obj = get_post_type_object( $item['post_type'] );
+		$post_type_obj      = get_post_type_object( $item['post_type'] );
 		$post_singular_name = $post_type_obj->labels->singular_name;
 
 		return $post_singular_name;
@@ -97,8 +107,8 @@ class Block_Details_List extends WP_List_Table {
 		$permalink = get_the_permalink( $item['ID'] );
 
 		$actions = array(
-			'edit' => '<a href="'. $edit_link . '">Edit</a>',
-			'view' => '<a href="'. $permalink . '">View</a>'
+			'edit' => '<a href="' . $edit_link . '">Edit</a>',
+			'view' => '<a href="' . $permalink . '">View</a>',
 		);
 
 		return '<a class="row-title" href="' . $edit_link . '"><strong>' . $item['post_title'] . '</strong></a>' . $this->row_actions( $actions );
@@ -108,17 +118,23 @@ class Block_Details_List extends WP_List_Table {
 	/**
 	 * Get the table data
 	 *
-	 * @return mixed
+	 * @param  array  $per_page  Number of posts to be retrieved.
+	 * @param  string $paged     Current page number.
+	 *
+	 * @return array
 	 */
 	private function get_block_details( $per_page = 10, $paged = 1 ) {
-		$block = $_GET['block'];
-		$block_name_srtlen = strlen( $block );
 		$data = array();
-		
-		if( $block ) {
+
+		if ( isset( $_GET['block'] ) ) {
+			$this->block_name           = sanitize_text_field( wp_unslash( $_GET['block'] ) );
+			$block_name_srtlen = strlen( $this->block_name );
+		}
+
+		if ( $this->block_name ) {
 			$args = array(
 				'posts_per_page' => $per_page,
-				'paged' => $paged,
+				'paged'          => $paged,
 				'post_type'      => 'any',
 				'meta_query'     => array(
 					'relation'   => 'AND',
@@ -127,12 +143,12 @@ class Block_Details_List extends WP_List_Table {
 						'key'         => 'acb_content_blocks',
 					),
 					array(
-						'value'   => 's:' . $block_name_srtlen . ':"' . $block . '"',
-						'compare' => 'LIKE'
-					)
+						'value'   => 's:' . $block_name_srtlen . ':"' . $this->block_name . '"',
+						'compare' => 'LIKE',
+					),
 				),
 				'orderby'        => 'post_title',
-				'order'          => 'ASC'
+				'order'          => 'ASC',
 			);
 
 			$query = new WP_Query( $args );
@@ -145,7 +161,7 @@ class Block_Details_List extends WP_List_Table {
 				$query->posts
 			);
 		}
-	
+
 		return $data;
 	}
 }
