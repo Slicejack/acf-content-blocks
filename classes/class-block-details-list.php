@@ -126,8 +126,8 @@ class Block_Details_List extends WP_List_Table {
 	private function get_block_details( $per_page = 10, $paged = 1 ) {
 		$data = array();
 
-		if ( isset( $_GET['block'] ) ) {
-			$this->block_name           = sanitize_text_field( wp_unslash( $_GET['block'] ) );
+		if ( isset( $_GET['block'] ) ) { // phpcs:ignore
+			$this->block_name           = sanitize_text_field( wp_unslash( $_GET['block'] ) ); // phpcs:ignore
 			$block_name_srtlen = strlen( $this->block_name );
 		}
 
@@ -151,7 +151,7 @@ class Block_Details_List extends WP_List_Table {
 				'order'          => 'ASC',
 			);
 
-			$query = new WP_Query( $args );
+			$query = new WP_Query( $args ); // phpcs:ignore
 			$this->total_items = $query->found_posts;
 
 			$data = array_map(
