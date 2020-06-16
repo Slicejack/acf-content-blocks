@@ -33,7 +33,7 @@ class Blocks_List extends WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = array(
-			'title' => 'Title',
+			'title' => __( 'Title', 'acf-content-blocks' ),
 		);
 
 		return $columns;

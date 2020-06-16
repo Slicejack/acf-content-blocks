@@ -671,9 +671,9 @@ class Plugin {
 	 *
 	 */
 	private function add_acb_locator_menu_page() {
-		add_menu_page( 
-			'Content Blocks Locator', 
-			'Content Blocks Locator', 
+		add_menu_page(
+			__( 'Content Blocks Locator', 'acf-content-blocks' ),
+			__( 'Content Blocks Locator', 'acf-content-blocks' ),
 			'manage_options', 
 			'content-blocks-locator', 
 			function() {

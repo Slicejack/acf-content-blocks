@@ -43,9 +43,9 @@ class Block_Details_List extends WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = array(
-			'post_title'  => 'Title',
-			'post_type'   => 'Post Type',
-			'post_status' => 'Status'
+			'post_title'  => __( 'Title', 'acf-content-blocks' ),
+			'post_type'   => __( 'Post Type', 'acf-content-blocks' ),
+			'post_status' => __( 'Status', 'acf-content-blocks' ),
 		);
 
 		return $columns;
