@@ -137,14 +137,11 @@ class Block_Details_List extends WP_List_Table {
 				'paged'          => $paged,
 				'post_type'      => 'any',
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					'relation'   => 'AND',
 					array(
 						'compare_key' => 'LIKE',
+						'compare'     => 'LIKE',
 						'key'         => 'acb_content_blocks',
-					),
-					array(
-						'value'   => 's:' . $block_name_srtlen . ':"' . $this->block_name . '"',
-						'compare' => 'LIKE',
+						'value'       => 's:' . $block_name_srtlen . ':"' . $this->block_name . '"',
 					),
 				),
 				'orderby'        => 'post_title',
