@@ -124,7 +124,7 @@ class Utils {
 	 * @return boolean
 	 */
 	public static function query_param_is_set( $key ) {
-		return ( isset( $_GET[ $key ] ) && ! empty( $_GET[ $key ] ) ); // phpcs:ignore
+		return ( isset( $_GET[ $key ] ) && ! empty( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**

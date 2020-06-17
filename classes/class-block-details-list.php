@@ -107,8 +107,8 @@ class Block_Details_List extends WP_List_Table {
 		$permalink = get_the_permalink( $item['ID'] );
 
 		$actions = array(
-			'edit' => '<a href="' . $edit_link . '">Edit</a>',
-			'view' => '<a href="' . $permalink . '">View</a>',
+			'edit' => '<a href="' . $edit_link . '">' . __( 'Edit', 'acf-content-blocks' ) . '</a>',
+			'view' => '<a href="' . $permalink . '">' . __( 'View', 'acf-content-blocks' ) . '</a>',
 		);
 
 		return '<a class="row-title" href="' . $edit_link . '"><strong>' . $item['post_title'] . '</strong></a>' . $this->row_actions( $actions );
@@ -126,8 +126,8 @@ class Block_Details_List extends WP_List_Table {
 	private function get_block_details( $per_page = 10, $paged = 1 ) {
 		$data = array();
 
-		if ( isset( $_GET['block'] ) ) { // phpcs:ignore
-			$this->block_name           = sanitize_text_field( wp_unslash( $_GET['block'] ) ); // phpcs:ignore
+		if ( isset( $_GET['block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$this->block_name  = sanitize_text_field( wp_unslash( $_GET['block'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$block_name_srtlen = strlen( $this->block_name );
 		}
 
@@ -136,7 +136,7 @@ class Block_Details_List extends WP_List_Table {
 				'posts_per_page' => $per_page,
 				'paged'          => $paged,
 				'post_type'      => 'any',
-				'meta_query'     => array( // phpcs:ignore
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					'relation'   => 'AND',
 					array(
 						'compare_key' => 'LIKE',
@@ -151,7 +151,7 @@ class Block_Details_List extends WP_List_Table {
 				'order'          => 'ASC',
 			);
 
-			$query = new WP_Query( $args ); // phpcs:ignore
+			$query             = new WP_Query( $args ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			$this->total_items = $query->found_posts;
 
 			$data = array_map(
