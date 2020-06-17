@@ -117,4 +117,27 @@ class Utils {
 		return str_replace( 'classes/', '', plugin_dir_url( __FILE__ ) . $path );
 	}
 
+	/**
+	 * Checks if query parameter is set.
+	 *
+	 * @param  string $key Query parameter key.
+	 * @return boolean
+	 */
+	public static function query_param_is_set( $key ) {
+		return ( isset( $_GET[ $key ] ) && ! empty( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Gets content block title by its name.
+	 *
+	 * @param  string $name Block name.
+	 * @return string
+	 */
+	public static function get_content_block_title( $name ) {
+		$title = strtoupper( str_replace( '_', ' ', $name ) );
+		$title = apply_filters( 'acb_content_block_title', $title );
+
+		return $title;
+	}
+
 }

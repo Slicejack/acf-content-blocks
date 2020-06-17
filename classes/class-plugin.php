@@ -179,6 +179,13 @@ class Plugin {
 			11,
 			2
 		);
+		add_action(
+			'admin_menu',
+			function() {
+				$this->add_acb_locator_menu_page();
+			},
+			11
+		);
 	}
 
 	/**
@@ -659,4 +666,18 @@ class Plugin {
 		}
 	}
 
+	/**
+	 * Adds Blocks Locator admin page.
+	 */
+	private function add_acb_locator_menu_page() {
+		add_menu_page(
+			__( 'Content Blocks Locator', 'acf-content-blocks' ),
+			__( 'Content Blocks Locator', 'acf-content-blocks' ),
+			'manage_options',
+			'content-blocks-locator',
+			function() {
+				Blocks_Locator_Page::render_acb_locator_menu_page();
+			}
+		);
+	}
 }

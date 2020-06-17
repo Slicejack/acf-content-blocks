@@ -20,6 +20,12 @@ require_once trailingslashit( __DIR__ ) . 'classes/class-plugin.php';
 require_once trailingslashit( __DIR__ ) . 'classes/class-utils.php';
 // Require API class.
 require_once trailingslashit( __DIR__ ) . 'classes/class-api.php';
+// Require Blocks List class.
+require_once trailingslashit( __DIR__ ) . 'classes/class-blocks-list.php';
+// Require Block Details List class.
+require_once trailingslashit( __DIR__ ) . 'classes/class-block-details-list.php';
+// Require Blocks Locator class.
+require_once trailingslashit( __DIR__ ) . 'classes/class-blocks-locator-page.php';
 // Require API functions.
 require_once trailingslashit( __DIR__ ) . 'api.php';
 
