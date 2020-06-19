@@ -51,10 +51,9 @@ class Blocks_Locator_Page {
 		$details = new Block_Details_List();
 		$details->prepare_items();
 		$block_name = Utils::get_content_block_title( $details->block_name );
-
 		?>
 		<div class="wrap">
-			<h2><?php echo esc_html__( 'Content Blocks > ', 'acf-content-blocks' ) . esc_html( $block_name ); ?></h2>
+			<h2><a href="<?php menu_page_url( 'content-blocks-locator' ); ?>"><?php echo esc_html__( 'Content Blocks', 'acf-content-blocks' ); ?></a> > <?php echo esc_html( $block_name ); ?></h2>
 			<?php
 				$details->display();
 			?>
