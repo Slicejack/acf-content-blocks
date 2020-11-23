@@ -11,27 +11,43 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        php-version: ['5.6', '7.1', '7.2', '7.3', '7.4']
+        composer-version: ['v1', 'v2']
+
+    name: Build on PHP ${{ matrix.php-version }} with Composer ${{ matrix.composer-version }}
+
     steps:
     - uses: actions/checkout@v2
 
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        coverage: none
+        tools: composer:${{ matrix.composer-version }}
+
     - name: Validate composer.json and composer.lock
       run: composer validate
-      
-    - name: Cache Composer packages
+
+    - name: Get composer cache directory
+      id: composer-cache-dir
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
       id: composer-cache
       uses: actions/cache@v2
       with:
-        path: vendor
-        key: ${{ runner.os }}-node-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+        path: ${{ steps.composer-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-php_${{ matrix.php-version }}-composer_${{ matrix.composer-version }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-php_${{ matrix.php-version }}-composer_${{ matrix.composer-version }}-composer-
 
     - name: Install dependencies
-      if: steps.composer-cache.outputs.cache-hit != 'true'
       run: composer install --prefer-dist --no-progress --no-suggest
 
     - name: Check php syntax
       run: find . -path ./vendor -prune -o -name '*.php' | xargs -I file php -lf file
-    
+
     - name: PHP Code Sniffer
       run: vendor/bin/phpcs --ignore="*/vendor/*" .
