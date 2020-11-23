@@ -44,7 +44,6 @@ jobs:
         restore-keys: ${{ runner.os }}-php_${{ matrix.php-version }}-composer_${{ matrix.composer-version }}-composer-
 
     - name: Install dependencies
-      if: steps.composer-cache.outputs.cache-hit != 'true'
       run: composer install --prefer-dist --no-progress --no-suggest
 
     - name: Check php syntax
