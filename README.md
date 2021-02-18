@@ -1,3 +1,3 @@
 # ACF Content Blocks
 
-[![Build Status](https://travis-ci.org/Slicejack/acf-content-blocks.svg?branch=master)](https://travis-ci.org/Slicejack/acf-content-blocks)
+[![PHP Composer](https://github.com/Slicejack/acf-content-blocks/workflows/PHP%20Composer/badge.svg)](https://github.com/Slicejack/acf-content-blocks/actions?query=workflow%3A%22PHP+Composer%22) [![Packagist Version](https://badgen.net/packagist/v/agilo/acf-content-blocks)](https://packagist.org/packages/agilo/acf-content-blocks) [![Packagist Total Downloads](https://badgen.net/packagist/dt/agilo/acf-content-blocks)](https://packagist.org/packages/agilo/acf-content-blocks) [![Packagist Monthly Downloads](https://badgen.net/packagist/dm/agilo/acf-content-blocks)](https://packagist.org/packages/agilo/acf-content-blocks) [![Packagist Daily Downloads](https://badgen.net/packagist/dd/agilo/acf-content-blocks)](https://packagist.org/packages/agilo/acf-content-blocks)
