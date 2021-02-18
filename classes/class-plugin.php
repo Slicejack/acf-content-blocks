@@ -254,83 +254,109 @@ class Plugin {
 
 		foreach ( $this->field_groups as $field_group ) {
 			$field_key_prefix = 'field_' . $field_group->hash . '_';
+			$group_fields     = acf_get_fields( $field_group->key ); // Check if group/block has fields.
 
-			$sub_fields = array(
-				array(
-					'key'               => $field_key_prefix . 'use_preset',
-					'label'             => 'Use Preset',
-					'name'              => 'acb_use_preset',
-					'type'              => 'true_false',
-					'instructions'      => '',
-					'required'          => 0,
-					'conditional_logic' => 0,
-					'wrapper'           => array(
-						'width' => '',
-						'class' => '',
-						'id'    => '',
+			// Don't add preset fields if block doesn't have fields.
+			if ( is_array( $group_fields ) && ! empty( $group_fields ) ) {
+				$sub_fields = array(
+					array(
+						'key'               => $field_key_prefix . 'use_preset',
+						'label'             => 'Use Preset',
+						'name'              => 'acb_use_preset',
+						'type'              => 'true_false',
+						'instructions'      => '',
+						'required'          => 0,
+						'conditional_logic' => 0,
+						'wrapper'           => array(
+							'width' => '',
+							'class' => '',
+							'id'    => '',
+						),
+						'message'           => '',
+						'default_value'     => 0,
+						'ui'                => 1,
+						'ui_on_text'        => '',
+						'ui_off_text'       => '',
 					),
-					'message'           => '',
-					'default_value'     => 0,
-					'ui'                => 1,
-					'ui_on_text'        => '',
-					'ui_off_text'       => '',
-				),
-				array(
-					'key'               => $field_key_prefix . 'preset',
-					'label'             => 'Preset',
-					'name'              => 'acb_preset',
-					'type'              => 'post_object',
-					'instructions'      => '',
-					'required'          => 0,
-					'conditional_logic' => array(
-						array(
+					array(
+						'key'               => $field_key_prefix . 'preset',
+						'label'             => 'Preset',
+						'name'              => 'acb_preset',
+						'type'              => 'post_object',
+						'instructions'      => '',
+						'required'          => 0,
+						'conditional_logic' => array(
 							array(
-								'field'    => $field_key_prefix . 'use_preset',
-								'operator' => '==',
-								'value'    => '1',
+								array(
+									'field'    => $field_key_prefix . 'use_preset',
+									'operator' => '==',
+									'value'    => '1',
+								),
 							),
 						),
+						'wrapper'           => array(
+							'width' => '',
+							'class' => '',
+							'id'    => '',
+						),
+						'post_type'         => array( 'acb_block_preset' ),
+						'taxonomy'          => array(),
+						'allow_null'        => 1,
+						'multiple'          => 0,
+						'return_format'     => 'id',
+						'ui'                => 1,
 					),
-					'wrapper'           => array(
-						'width' => '',
-						'class' => '',
-						'id'    => '',
-					),
-					'post_type'         => array( 'acb_block_preset' ),
-					'taxonomy'          => array(),
-					'allow_null'        => 1,
-					'multiple'          => 0,
-					'return_format'     => 'id',
-					'ui'                => 1,
-				),
-				array(
-					'key'               => $field_key_prefix . 'content_block',
-					'label'             => '',
-					'name'              => 'acb_content_block',
-					'type'              => 'clone',
-					'instructions'      => '',
-					'required'          => 0,
-					'conditional_logic' => array(
-						array(
+					array(
+						'key'               => $field_key_prefix . 'content_block',
+						'label'             => '',
+						'name'              => 'acb_content_block',
+						'type'              => 'clone',
+						'instructions'      => '',
+						'required'          => 0,
+						'conditional_logic' => array(
 							array(
-								'field'    => $field_key_prefix . 'use_preset',
-								'operator' => '!=',
-								'value'    => '1',
+								array(
+									'field'    => $field_key_prefix . 'use_preset',
+									'operator' => '!=',
+									'value'    => '1',
+								),
 							),
 						),
+						'wrapper'           => array(
+							'width' => '',
+							'class' => '',
+							'id'    => '',
+						),
+						'clone'             => array( $field_group->key ),
+						'display'           => 'group',
+						'layout'            => 'block',
+						'prefix_label'      => 0,
+						'prefix_name'       => 0,
 					),
-					'wrapper'           => array(
-						'width' => '',
-						'class' => '',
-						'id'    => '',
+				);
+			} else {
+				$sub_fields = array(
+					array(
+						'key'               => $field_key_prefix . 'content_block',
+						'label'             => '',
+						'name'              => 'acb_content_block',
+						'type'              => 'clone',
+						'instructions'      => '',
+						'required'          => 0,
+						'conditional_logic' => 0,
+						'wrapper'           => array(
+							'width' => '',
+							'class' => '',
+							'id'    => '',
+						),
+						'clone'             => array( $field_group->key ),
+						'display'           => 'group',
+						'layout'            => 'block',
+						'prefix_label'      => 0,
+						'prefix_name'       => 0,
 					),
-					'clone'             => array( $field_group->key ),
-					'display'           => 'group',
-					'layout'            => 'block',
-					'prefix_label'      => 0,
-					'prefix_name'       => 0,
-				),
-			);
+				);
+			}
 
 			$sub_fields = apply_filters( 'acb_content_blocks_component_sub_fields', $sub_fields, $field_group->hash, 'field_' . $field_group->hash . '_' );
 
@@ -548,6 +574,14 @@ class Plugin {
 			$field['required'] = 1;
 			$field['min']      = '1';
 			$field['max']      = '1';
+
+			foreach ( $field['layouts'] as $i => $layout ) {
+				$sub_fields = acf_get_fields( 'group_' . $layout['key'] );
+
+				if ( ! is_array( $sub_fields ) || empty( $sub_fields ) ) {
+					unset( $field['layouts'][ $i ] ); // Remove layout if doesn't have fields.
+				}
+			}
 		}
 
 		return $field;
