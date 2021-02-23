@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name: ACF Content Blocks
- * Plugin URI: https://github.com/Slicejack/acf-content-blocks
+ * Plugin URI: https://github.com/hovhann3ss/acf-content-blocks
  * Description: ACF Content Blocks
  * Version: 0.7.0
  * Author: Agilo
  * Author URI: https://agilo.co/
  * License: GNU General Public License v3.0
- * License URI: https://github.com/Slicejack/acf-content-blocks/blob/master/LICENSE
+ * License URI: https://github.com/hovhann3ss/acf-content-blocks/blob/master/LICENSE
  * Text Domain: acf-content-blocks
  * Domain Path: /languages
  *
