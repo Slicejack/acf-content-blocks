@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         php-version: ['5.6', '7.1', '7.2', '7.3', '7.4', '8.0']
-        composer-version: ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8']
+        composer-version: ['v1', 'v2', 'v3', 'v4', 'v5', 'v6']
 
     name: Build on PHP ${{ matrix.php-version }} with Composer ${{ matrix.composer-version }}
 
