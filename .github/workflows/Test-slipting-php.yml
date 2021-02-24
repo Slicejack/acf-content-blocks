@@ -2,9 +2,9 @@ name: Test PHP Composer
 
 on:
   push:
-    branches: [ toluwalase21:master ]
+    branches: [ master ]
   pull_request:
-    branches: [ Slicejack:github-action-matrix-php-and-composer-strategy ]
+    branches: [ master ]
 
 jobs:
   build:
