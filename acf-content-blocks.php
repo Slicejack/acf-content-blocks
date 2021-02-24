@@ -3,7 +3,7 @@
  * Plugin Name: ACF Content Blocks
  * Plugin URI: https://github.com/Slicejack/acf-content-blocks
  * Description: ACF Content Blocks
- * Version: 0.4.0
+ * Version: 0.7.0
  * Author: Agilo
  * Author URI: https://agilo.co/
  * License: GNU General Public License v3.0
